@@ -11,7 +11,6 @@ class ImportStacks_ShowCoins {
         ImportStacks_Banker bank = new ImportStacks_Banker(Application_ImportStacks.fileUtils);
         int[] bankTotals = bank.countCoins(Application_ImportStacks.bankFolder);
         int[] frackedTotals = bank.countCoins(Application_ImportStacks.frackedFolder);
-        //int[] counterfeitTotals = bank.countCoins( counterfeitFolder );
         int grandTotal = bankTotals[0] + frackedTotals[0];
 
         System.out.println("Your Bank Inventory:");

@@ -6,6 +6,9 @@ import java.io.IOException;
  * Reads files from the suspect folder, detects them.
  * Writes them to either the bank, counterfeit or fracked
  *
+ * ImportStacks_Detector has the following differences from Detector:
+ * Uses ImportStacks_CloudCoin instead of CloudCoin.
+ *
  * @author Sean H. Worthington
  * @version 1/14/2017
  */

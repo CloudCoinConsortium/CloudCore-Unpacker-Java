@@ -15,9 +15,6 @@ class Application_ImportStacks {
     public static String directoryFolder = rootFolder +  "Directory" + File.separator;;
     public static String exportFolder = rootFolder +  "Export" + File.separator;
 
-    public static String prompt = "CloudCoin Bank";
-    public static String[] commandsAvailable = new String[]{"import","show coins", "export", "fix fracked","quit", "show folders"};
-    public static int timeout = 10000;//Milliseconds to wait until the request is ended.
     public static ImportStacks_FileUtils fileUtils = new ImportStacks_FileUtils( rootFolder, importFolder, importedFolder, trashFolder, suspectFolder, frackedFolder, bankFolder, templateFolder, counterfeitFolder, directoryFolder, exportFolder  );
 
     public static void main(String[] args) {

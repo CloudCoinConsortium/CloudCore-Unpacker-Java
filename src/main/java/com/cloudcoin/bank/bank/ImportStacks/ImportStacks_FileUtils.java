@@ -4,9 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -14,6 +11,20 @@ import java.util.*;
  *
  * ImportStacks_FileUtils has the following differences from FileUtils:
  * Uses ImportStacks_CloudCoin instead of CloudCoin.
+ * Uses the following methods from FileUtils:
+ * - ImportStacks_CloudCoinFromFile()
+ * - deleteCoin()
+ * - importJSON()
+ * - loadJSON();
+ * - moveToImportedFolder()
+ * - moveToTrashFolder()
+ * - parseJpeg()
+ * - selectFileNamesInFolders()
+ * - setJSON()
+ * - toHexidecimal
+ * - toStringArray()
+ * - writeTo()
+ * - writeToSuspectFolder()
  *
  * @author Sean H. Worthington
  * @version 1/17/2017
@@ -94,7 +105,7 @@ class ImportStacks_FileUtils
             //try{
             JSONObject o = new JSONObject( incomeJson );
             incomeJsonArray = o.getJSONArray("cloudcoin");
-            //this.newCoins = new CloudCoin[incomeJsonArray.length()];
+            //this.newCoins = new ImportStacks_CloudCoin[incomeJsonArray.length()];
             for (int i = 0; i < incomeJsonArray.length(); i++) {  // **line 2**
                 JSONObject childJSONObject = incomeJsonArray.getJSONObject(i);
                 cc.nn     = childJSONObject.getInt("nn");
@@ -145,7 +156,6 @@ class ImportStacks_FileUtils
         }
         return jsonData;
     }//en d json test
-
 
     /**
      * Method setJSON creates JSON text version of the coin that can be written to file.
@@ -209,78 +219,6 @@ class ImportStacks_FileUtils
         return json;
 
     }//end get JSON
-
-    /**
-     * Method setJpeg creates an array of bytes that can be written to file to make a jpg image based on the CloudCoin
-     *
-     * @ param rootFolder This points to the template that will be used to make the jpg image. Templates can be customized.
-     */
-    public byte[] makeJpeg( ImportStacks_CloudCoin cc){
-        byte[] returnBytes =  null;
-        //Make byte array from CloudCoin
-        String cloudCoinStr ="";
-        for( int i = 0; i < 25; i++  ){
-            cloudCoinStr += cc.ans[i];
-        }//end for each an
-        // cloudCoinStr +="Defeat tyrants and obey God0"; //27 AOID and comments
-        cloudCoinStr +="204f42455920474f4420262044454645415420545952414e54532000"; //Hex for " OBEY GOD & DEFEAT TYRANTS "
-        cloudCoinStr +="00";//LHC = 100%
-        cloudCoinStr +="97E2";//0x97E2;//Expiration date Sep. 2018
-        cloudCoinStr += "01";// cc.nn;//network number
-        String hexSN = Integer.toHexString(cc.sn);
-        String fullHexSN ="";
-        switch (hexSN.length())//Add leading zeros to the hex number
-        {
-            case 1: fullHexSN = "00000" +hexSN; break;
-            case 2:fullHexSN = "0000" +hexSN; break;
-            case 3:fullHexSN = "000" +hexSN; break;
-            case 4:fullHexSN = "00" +hexSN; break;
-            case 5:fullHexSN = "0" +hexSN; break;
-            case 6:fullHexSN = hexSN; break;
-        }
-        cloudCoinStr += fullHexSN;
-        String Path = "";
-        switch( cc.getDenomination() ){
-            case   1:  java.nio.file.Path jpeg1 = Paths.get( templateFolder +"jpeg1.jpg");//This is the location of the template for 1s
-                try{ returnBytes = Files.readAllBytes(jpeg1); }catch(IOException e){
-                    System.out.println("General I/O exception: " + e.getMessage()); e.printStackTrace();
-                }//end catch
-                break;
-            case   5:
-                Path jpeg5 = Paths.get(templateFolder +"jpeg5.jpg");//This is the location of the template for 5s
-                try{ returnBytes = Files.readAllBytes(jpeg5); }catch(IOException e){
-                    System.out.println("General I/O exception: " + e.getMessage());
-                    e.printStackTrace(); }//end catch
-                break;
-            case  25:
-                Path jpeg25 = Paths.get(templateFolder +"jpeg25.jpg");
-                try{ returnBytes = Files.readAllBytes(jpeg25); }catch(IOException e){
-                    System.out.println("General I/O exception: " + e.getMessage());
-                    e.printStackTrace();}//end catch
-                break;
-            case 100:
-                Path jpeg100 = Paths.get(templateFolder +"jpeg100.jpg");
-                try{ returnBytes = Files.readAllBytes(jpeg100); }catch(IOException e){
-                    System.out.println("General I/O exception: " + e.getMessage()); e.printStackTrace();
-                }//end catch
-                break;
-            case 250:
-                Path jpeg250 = Paths.get(templateFolder +"jpeg250.jpg");
-                try{ returnBytes = Files.readAllBytes(jpeg250); }catch(IOException e){
-                    System.out.println("General I/O exception: " + e.getMessage()); e.printStackTrace();
-                }//end catch
-                break;
-        }//end switch
-        /*OVERWRITE */
-        byte[] ccArray = hexStringToByteArray( cloudCoinStr );
-        int offset = 20;  // System.out.println("ccArray length " + ccArray.length);
-        for( int j =0; j < ccArray.length; j++  ){
-            returnBytes[offset + j ] = ccArray[j];
-        }//end for each byte in the ccArray
-        return returnBytes;
-    }//end get jpeg
-
-
 
     public void moveToTrashFolder(String fileName){
         String source = importFolder + fileName;
@@ -352,87 +290,6 @@ class ImportStacks_FileUtils
     }//end delete file
 
     /**
-     * Method concatArrays Takes two arrays and adds them together
-     *
-     * @param a The first array
-     * @param b The second array
-     * @return The arrays together
-     */
-    public String[] concatArrays(String[] a, String[] b) {
-        int aLen = a.length;
-        int bLen = b.length;
-        String[] c= new String[aLen+bLen];
-        System.arraycopy(a, 0, c, 0, aLen);
-        System.arraycopy(b, 0, c, aLen, bLen);
-        return c;
-    }
-
-    /**
-     * Method ifFileExists Checks to see if a file exists
-     *
-     * @param filePathString A parameter
-     * @return True if the file exists, false if the file does not exist.
-     */
-    public boolean ifFileExists( String filePathString ){
-        File f = new File(filePathString);
-        if(f.exists() && !f.isDirectory()) {
-            return true;
-        }
-        return false;
-    }//end if file Exists
-
-    /**
-     * Method loadFileToString
-     *
-     * @param jsonfile The path and anme of a file that contains CloudCoins in the form of JSON.
-     * @return The return value
-     */
-    public String loadFileToString( String jsonfile) throws FileNotFoundException {
-        String jsonData = "";
-        BufferedReader br = null;
-        try {
-            String line;
-            br = new BufferedReader(new FileReader( jsonfile ));
-            while ((line = br.readLine()) != null) {
-                jsonData += line + "\n";
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (br != null)
-                    br.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-        return jsonData;
-    }//end load file to string
-
-    public int ordinalIndexOf(String str, String substr, int n) {
-        int pos = str.indexOf(substr);
-        while (--n > 0 && pos != -1)
-            pos = str.indexOf(substr, pos + 1);
-        return pos;
-    }
-
-    /***
-     * Given a string and a file name, write the string to the harddrive.
-     * @parameter text The string to go into the file
-     * @paramerter filename The name to be given to the file.
-     */
-    public boolean stringToFile( String text, String filename) {
-        boolean writeGood =  false;
-        try(  PrintWriter out = new PrintWriter( filename )  ){
-            out.println( text );
-            writeGood = true;
-        }catch( FileNotFoundException ex){
-            System.out.println(ex);
-        }
-        return writeGood;
-    }//end string to file
-
-    /**
      * Method toHexadecimal
      *
      * @param digest An array of bytes that will change into a string of hex characters
@@ -476,8 +333,8 @@ class ImportStacks_FileUtils
         }
         return goodSave;
     }
-
-    private ImportStacks_CloudCoin parseJpeg( String wholeString){
+    
+    private ImportStacks_CloudCoin parseJpeg(String wholeString){
         ImportStacks_CloudCoin cc = new ImportStacks_CloudCoin();
         int startAn = 40;
         int endAn = 72;
@@ -497,8 +354,6 @@ class ImportStacks_FileUtils
         }//end for each pan
         return cc;
     }//end parse Jpeg
-
-
 
     private String loadJSON( String jsonfile) throws FileNotFoundException {
         String jsonData = "";
@@ -520,44 +375,6 @@ class ImportStacks_FileUtils
             }
         }
         return jsonData;
-    }//en d json test
-
-
-
-    /**
-     * Method hexStringToByteArray turns a String of hex characters into bytes
-     *
-     * @param s A String of hex characters
-     * @return A byte array that represents the string of hex characters
-     */
-    public byte[] hexStringToByteArray(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i+1), 16));
-        }
-        return data;
-    }//End of hexString to byte array
-
-    /**
-     * Method writeJpeg writes a jpg image to the hard drive.
-     *
-     * @param path The full path to the file except the file name.
-     * @param tag A parameter that adds a tag to the filename
-     * @return true if file is saved, false if file is not saved
-     */
-    public boolean writeJpeg( String path, String tag, byte[] jpeg, String fileName  ) throws IOException, FileNotFoundException{
-        boolean writeGood = true;
-        String file = path + File.separator  + fileName + tag +".jpg";
-        //System.out.println("Saving jpg: " + file);
-        try{
-            Files.write(Paths.get( file ), jpeg );
-        }catch( IOException ex ){
-            //  System.out.println( "Error Saving Jpeg: " + ex );
-            writeGood = false;
-        }//end try ioexception
-        return writeGood;
-    }//end jpeg to file
+    }//end json test
 
 }

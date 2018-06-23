@@ -10,11 +10,6 @@ class ImportStacks_FixitHelper
 {
     // instance variables
     /**
-     * The trusted servers are the servers all around the server when arranged in a 5*5 block
-     * <img src="http://cloudcoin.co/img/fixit.png">
-     */
-    public int[] trustedServers = new int[8];//Each servers only trusts eight others
-    /**
      * The upper left corrner of trusted servers
      */
     public int[] trustedTriad1;
@@ -35,11 +30,6 @@ class ImportStacks_FixitHelper
      */
     public int[] currentTriad;
 
-
-    /**
-     * Is the GUID fixed yet? Do we need to try another corner?
-     */
-    public boolean fixed = false;
     /**
      * Have all the corners been checked yet? If false, change corners and check another if not fixed.
      */

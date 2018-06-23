@@ -10,7 +10,6 @@ public abstract class ShowCoins_ShowCoins {
         ShowCoins_Banker bank = new ShowCoins_Banker(Application_ShowCoins.fileUtils);
         int[] bankTotals = bank.countCoins(Application_ShowCoins.bankFolder);
         int[] frackedTotals = bank.countCoins(Application_ShowCoins.frackedFolder);
-        //int[] counterfeitTotals = bank.countCoins( counterfeitFolder );
         int grandTotal = bankTotals[0] + frackedTotals[0];
 
         System.out.println("Your Bank Inventory:");
