@@ -22,12 +22,12 @@ import java.util.Dictionary;
  */
 public class Importer {
 
-    ImportStacks_FileUtils fileUtils;
+    FileUtils fileUtils;
 
     /**
      * Constructor for objects of class Importer
      */
-    public Importer(ImportStacks_FileUtils fileUtils) {
+    public Importer(FileUtils fileUtils) {
         this.fileUtils = fileUtils;
     }
 

@@ -1,5 +1,6 @@
 package com.cloudcoin.bank.bank;
 
+import com.cloudcoin.bank.bank.ImportStacks.ImportCoins;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -28,9 +29,14 @@ public class BankApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BankApplication.class, args);
 
+		FolderWatcher watcher = new FolderWatcher("C:\\CloudCoins-Java-Server\\Import");
+
 		// Currently runs endlessly.
 		boolean restart = false;
 		while (!restart) {
+			if (watcher.newFileDetected()) {
+				ImportCoins.importCoins();
+			}
 		}
 	}
 }

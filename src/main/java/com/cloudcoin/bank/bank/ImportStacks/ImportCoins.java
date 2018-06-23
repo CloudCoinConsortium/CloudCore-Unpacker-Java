@@ -15,14 +15,14 @@ public class ImportCoins {
     public static void importCoins() {
         System.out.println("Loading all CloudCoins in the import folder:" + BankApplication.importFolder);
 
-        Importer importer = new Importer((ImportStacks_FileUtils) BankApplication.fileUtils);
+        Importer importer = new Importer(BankApplication.fileUtils);
         if (!importer.importAll()) {
             System.out.println("No files were found, ending import.");
             return;
         }
 
         //Move all coins to seperate JSON files in the the suspect folder.
-        Detector detector = new Detector((ImportStacks_FileUtils) BankApplication.fileUtils, 10000);
+        Detector detector = new Detector(BankApplication.fileUtils, 10000);
         int[] detectionResults = detector.detectAll();
         System.out.println("Total Received in bank: " + (detectionResults[0] + detectionResults[2]));//And the bank and the fractured for total
         System.out.println("Total Counterfeit: " + detectionResults[1]);

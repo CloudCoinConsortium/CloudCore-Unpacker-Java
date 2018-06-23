@@ -16,9 +16,9 @@ import java.io.IOException;
 public class Detector {
 
     ImportStacks_RAIDA raida;
-    ImportStacks_FileUtils fileUtils;
+    FileUtils fileUtils;
 
-    public Detector(ImportStacks_FileUtils fileUtils, int timeout) {
+    public Detector(FileUtils fileUtils, int timeout) {
         raida = new ImportStacks_RAIDA(timeout);
         this.fileUtils = fileUtils;
     }
