@@ -1,4 +1,4 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.bank.bank.ShowCoins;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -10,30 +10,33 @@ import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * Help to read, write and change files
- * 
+ * Help to read, write and change files.
+ *
+ * ShowCoins_FileUtils has the following differences from FileUtils:
+ * Uses ShowCoins_CloudCoin instead of CloudCoin.
+ *
  * @author Sean H. Worthington
  * @version 1/17/2017
  */
-public class FileUtils
+class ShowCoins_FileUtils
 {
     // instance variables
-    public  String rootFolder; 
+    public  String rootFolder;
     public  String importFolder;
-    public  String importedFolder; 
+    public  String importedFolder;
     public  String trashFolder;
-    public  String suspectFolder; 
-    public  String frackedFolder; 
-    public  String bankFolder; 
-    public  String templateFolder; 
-    public  String counterfeitFolder; 
-    public  String directoryFolder; 
-    public  String exportFolder; 
+    public  String suspectFolder;
+    public  String frackedFolder;
+    public  String bankFolder;
+    public  String templateFolder;
+    public  String counterfeitFolder;
+    public  String directoryFolder;
+    public  String exportFolder;
 
     /**
      * Constructor for objects of class FileUtils
      */
-    public FileUtils(String rootFolder, String importFolder, String importedFolder, String trashFolder, String suspectFolder, String frackedFolder, String bankFolder, String templateFolder, String counterfeitFolder, String directoryFolder, String exportFolder)
+    public ShowCoins_FileUtils(String rootFolder, String importFolder, String importedFolder, String trashFolder, String suspectFolder, String frackedFolder, String bankFolder, String templateFolder, String counterfeitFolder, String directoryFolder, String exportFolder)
     {
         // initialise instance variables
         this.rootFolder = rootFolder ;
@@ -49,15 +52,15 @@ public class FileUtils
         this.exportFolder = exportFolder;
     }//End constructor
 
-    public CloudCoin cloudCoinFromFile( String loadFilePath ) throws FileNotFoundException, IOException {
+    public ShowCoins_CloudCoin cloudCoinFromFile( String loadFilePath ) throws FileNotFoundException, IOException {
         String extension ="";
-        CloudCoin cc = new CloudCoin();
+        ShowCoins_CloudCoin cc = new ShowCoins_CloudCoin();
         //put some default values
         for(int i = 0; i< 25; i++){
             cc.pans[i] = cc.generatePan();
             cc.pastStatus[i] = "undetected";
         }//end for each pan
-        
+
         /*SEE IF FILE IS JPEG OR JSON*/
         int indx = loadFilePath.lastIndexOf('.');
         if (indx > 0) {
@@ -68,57 +71,57 @@ public class FileUtils
             FileInputStream fis;
             byte[] jpegHeader = new byte[455];
             String wholeString ="";
-           // try {
-                fis = new FileInputStream( loadFilePath );
-                fis.read(jpegHeader);// read bytes to the buffer
-                wholeString = toHexadecimal( jpegHeader );// System.out.println(wholeString);
-                fis.close(); 
-                parseJpeg( wholeString );
+            // try {
+            fis = new FileInputStream( loadFilePath );
+            fis.read(jpegHeader);// read bytes to the buffer
+            wholeString = toHexadecimal( jpegHeader );// System.out.println(wholeString);
+            fis.close();
+            parseJpeg( wholeString );
             //} catch (FileNotFoundException e) { // TODO Auto-generated catch block
-              //  e.printStackTrace();
+            //  e.printStackTrace();
             //} catch (IOException e) { // TODO Auto-generated catch block
-              //  e.printStackTrace();
+            //  e.printStackTrace();
             //}
         }else{//json image
-            String incomeJson = ""; 
-            //try{ 
-                incomeJson = loadJSON( loadFilePath );
-            //}catch( IOException ex ){  
-             //   System.out.println( "Error loading file path " + ex );
-                
+            String incomeJson = "";
+            //try{
+            incomeJson = loadJSON( loadFilePath );
+            //}catch( IOException ex ){
+            //   System.out.println( "Error loading file path " + ex );
+
             //}
             JSONArray incomeJsonArray;
-            //try{  
-                JSONObject o = new JSONObject( incomeJson );
-                incomeJsonArray = o.getJSONArray("cloudcoin");
-                //this.newCoins = new CloudCoin[incomeJsonArray.length()];
-                for (int i = 0; i < incomeJsonArray.length(); i++) {  // **line 2**
-                    JSONObject childJSONObject = incomeJsonArray.getJSONObject(i);
-                    cc.nn     = childJSONObject.getInt("nn");
-                    cc.sn     = childJSONObject.getInt("sn");
-                    JSONArray an = childJSONObject.getJSONArray("an");
-                    cc.ans = toStringArray(an);
-                    String ed     = childJSONObject.getString("ed");
-                    JSONArray aoid     = childJSONObject.getJSONArray("aoid");
-                    String[] strAoid = toStringArray(aoid);
-                    for(int j =0; j< strAoid.length; j++  ){ //"fracked=ppppppppppppppppppppppppp"
-                        if( strAoid[j].contains("=") ){//see if the string contains an equals sign
+            //try{
+            JSONObject o = new JSONObject( incomeJson );
+            incomeJsonArray = o.getJSONArray("cloudcoin");
+            //this.newCoins = new CloudCoin[incomeJsonArray.length()];
+            for (int i = 0; i < incomeJsonArray.length(); i++) {  // **line 2**
+                JSONObject childJSONObject = incomeJsonArray.getJSONObject(i);
+                cc.nn     = childJSONObject.getInt("nn");
+                cc.sn     = childJSONObject.getInt("sn");
+                JSONArray an = childJSONObject.getJSONArray("an");
+                cc.ans = toStringArray(an);
+                String ed     = childJSONObject.getString("ed");
+                JSONArray aoid     = childJSONObject.getJSONArray("aoid");
+                String[] strAoid = toStringArray(aoid);
+                for(int j =0; j< strAoid.length; j++  ){ //"fracked=ppppppppppppppppppppppppp"
+                    if( strAoid[j].contains("=") ){//see if the string contains an equals sign
                         String[] keyvalue = strAoid[j].split("=");
-                         cc.aoid.put(keyvalue[0], keyvalue[1]);//index 0 is the key index 1 is the value.
-                        }else{ //There is something there but not a key value pair. Treak it like a memo
-                          cc.aoid.put("memo",strAoid[j] );
-                        }//end if cointains an = 
-                    }//end for each aoid
-                }//end for each coin
+                        cc.aoid.put(keyvalue[0], keyvalue[1]);//index 0 is the key index 1 is the value.
+                    }else{ //There is something there but not a key value pair. Treak it like a memo
+                        cc.aoid.put("memo",strAoid[j] );
+                    }//end if cointains an =
+                }//end for each aoid
+            }//end for each coin
         }//end if json
         cc.fileName = cc.getDenomination() +".CloudCoin." + cc.nn +"."+ cc.sn + ".";
         cc.json = "";
         cc.jpeg = null;
-        
+
         return cc;
     }//end loadCloudCoin
-    
-    
+
+
     public String importJSON( String jsonfile) throws FileNotFoundException {
         String jsonData = "";
         BufferedReader br = null;
@@ -143,14 +146,14 @@ public class FileUtils
         return jsonData;
     }//en d json test
 
-    
+
     /**
      * Method setJSON creates JSON text version of the coin that can be written to file.
      *
-     * @return The return value is a String of JSON that can be written to hard drive. 
+     * @return The return value is a String of JSON that can be written to hard drive.
      */
-    public String setJSON( CloudCoin cc){   
-        
+    public String setJSON( ShowCoins_CloudCoin cc){
+
         String json =  "\t\t{" + System.getProperty("line.separator") ;
         json += "\t\t\"nn\":\"1\"," + System.getProperty("line.separator");
         json +="\t\t\"sn\":\""+ cc.sn + "\"," + System.getProperty("line.separator");
@@ -171,28 +174,28 @@ public class FileUtils
         json += "\t\t\"ed\":\"9-2016\"," + System.getProperty("line.separator");
         String aoids = "";
         if(  cc.aoid == null) {
-               aoids = "";
-         } else {
-          Enumeration<String> e = cc.aoid.keys();
+            aoids = "";
+        } else {
+            Enumeration<String> e = cc.aoid.keys();
             int count =0;
-          while(e.hasMoreElements()) {
-            if( count != 0){ aoids += ",";}  
-            String k = e.nextElement();
-            System.out.println("\"" + k + "=" + cc.aoid.get(k) + "\"");
-            count++;
-          }
+            while(e.hasMoreElements()) {
+                if( count != 0){ aoids += ",";}
+                String k = e.nextElement();
+                System.out.println("\"" + k + "=" + cc.aoid.get(k) + "\"");
+                count++;
+            }
         }
-        
+
         String strAoid =  "\"" + cc.aoid + "\"";//add quotation marks to the string for jason
         if ( cc.aoid == null){
-            strAoid = "";//aoid is mull so don't need any quot marks. 
+            strAoid = "";//aoid is mull so don't need any quot marks.
         }
-        //strAoids will have {} brackeds added for some reason. Strip them. 
+        //strAoids will have {} brackeds added for some reason. Strip them.
         strAoid =  strAoid.replace("{","");
         strAoid =  strAoid.replace("}","");
         json += "\t\t\"aoid\": [" + strAoid + "]" + System.getProperty("line.separator");
-        json += "\t\t}"+ System.getProperty("line.separator"); 
-        
+        json += "\t\t}"+ System.getProperty("line.separator");
+
 
         //Allways change expiration date when saving (not a truley accurate but good enought )
         Date date= new Date();
@@ -212,7 +215,7 @@ public class FileUtils
      *
      * @ param rootFolder This points to the template that will be used to make the jpg image. Templates can be customized.
      */
-    public byte[] makeJpeg( CloudCoin cc){
+    public byte[] makeJpeg( ShowCoins_CloudCoin cc){
         byte[] returnBytes =  null;
         //Make byte array from CloudCoin
         String cloudCoinStr ="";
@@ -224,7 +227,7 @@ public class FileUtils
         cloudCoinStr +="00";//LHC = 100%
         cloudCoinStr +="97E2";//0x97E2;//Expiration date Sep. 2018
         cloudCoinStr += "01";// cc.nn;//network number
-        String hexSN = Integer.toHexString(cc.sn);  
+        String hexSN = Integer.toHexString(cc.sn);
         String fullHexSN ="";
         switch (hexSN.length())//Add leading zeros to the hex number
         {
@@ -238,35 +241,35 @@ public class FileUtils
         cloudCoinStr += fullHexSN;
         String Path = "";
         switch( cc.getDenomination() ){
-            case   1:  Path jpeg1 = Paths.get( templateFolder +"jpeg1.jpg");//This is the location of the template for 1s
-            try{ returnBytes = Files.readAllBytes(jpeg1); }catch(IOException e){
-                System.out.println("General I/O exception: " + e.getMessage()); e.printStackTrace();
-            }//end catch
-            break;
-            case   5: 
-            Path jpeg5 = Paths.get(templateFolder +"jpeg5.jpg");//This is the location of the template for 5s
-            try{ returnBytes = Files.readAllBytes(jpeg5); }catch(IOException e){
-                System.out.println("General I/O exception: " + e.getMessage());
-                e.printStackTrace(); }//end catch
-            break;
-            case  25: 
-            Path jpeg25 = Paths.get(templateFolder +"jpeg25.jpg");
-            try{ returnBytes = Files.readAllBytes(jpeg25); }catch(IOException e){
-                System.out.println("General I/O exception: " + e.getMessage());
-                e.printStackTrace();}//end catch
-            break;
+            case   1:  java.nio.file.Path jpeg1 = Paths.get( templateFolder +"jpeg1.jpg");//This is the location of the template for 1s
+                try{ returnBytes = Files.readAllBytes(jpeg1); }catch(IOException e){
+                    System.out.println("General I/O exception: " + e.getMessage()); e.printStackTrace();
+                }//end catch
+                break;
+            case   5:
+                Path jpeg5 = Paths.get(templateFolder +"jpeg5.jpg");//This is the location of the template for 5s
+                try{ returnBytes = Files.readAllBytes(jpeg5); }catch(IOException e){
+                    System.out.println("General I/O exception: " + e.getMessage());
+                    e.printStackTrace(); }//end catch
+                break;
+            case  25:
+                Path jpeg25 = Paths.get(templateFolder +"jpeg25.jpg");
+                try{ returnBytes = Files.readAllBytes(jpeg25); }catch(IOException e){
+                    System.out.println("General I/O exception: " + e.getMessage());
+                    e.printStackTrace();}//end catch
+                break;
             case 100:
-            Path jpeg100 = Paths.get(templateFolder +"jpeg100.jpg");
-            try{ returnBytes = Files.readAllBytes(jpeg100); }catch(IOException e){
-                System.out.println("General I/O exception: " + e.getMessage()); e.printStackTrace();
-            }//end catch
-            break;
-            case 250: 
-            Path jpeg250 = Paths.get(templateFolder +"jpeg250.jpg");
-            try{ returnBytes = Files.readAllBytes(jpeg250); }catch(IOException e){ 
-                System.out.println("General I/O exception: " + e.getMessage()); e.printStackTrace();
-            }//end catch
-            break;
+                Path jpeg100 = Paths.get(templateFolder +"jpeg100.jpg");
+                try{ returnBytes = Files.readAllBytes(jpeg100); }catch(IOException e){
+                    System.out.println("General I/O exception: " + e.getMessage()); e.printStackTrace();
+                }//end catch
+                break;
+            case 250:
+                Path jpeg250 = Paths.get(templateFolder +"jpeg250.jpg");
+                try{ returnBytes = Files.readAllBytes(jpeg250); }catch(IOException e){
+                    System.out.println("General I/O exception: " + e.getMessage()); e.printStackTrace();
+                }//end catch
+                break;
         }//end switch
         /*OVERWRITE */
         byte[] ccArray = hexStringToByteArray( cloudCoinStr );
@@ -276,9 +279,9 @@ public class FileUtils
         }//end for each byte in the ccArray
         return returnBytes;
     }//end get jpeg
-    
-    
-    
+
+
+
     public void moveToTrashFolder(String fileName){
         String source = importFolder + fileName;
         String target = trashFolder + fileName;
@@ -333,7 +336,7 @@ public class FileUtils
      * Method deleteCoin
      *
      * @param path The folder that the coin is located in
-     * @return true if the coin is deleted and false if it does not get deleted. 
+     * @return true if the coin is deleted and false if it does not get deleted.
      */
     public boolean deleteCoin( String path ){
         boolean deleted = false;
@@ -372,7 +375,7 @@ public class FileUtils
      */
     public boolean ifFileExists( String filePathString ){
         File f = new File(filePathString);
-        if(f.exists() && !f.isDirectory()) { 
+        if(f.exists() && !f.isDirectory()) {
             return true;
         }
         return false;
@@ -427,13 +430,13 @@ public class FileUtils
             System.out.println(ex);
         }
         return writeGood;
-    }//end string to file 
-    
-       /**
+    }//end string to file
+
+    /**
      * Method toHexadecimal
      *
      * @param digest An array of bytes that will change into a string of hex characters
-     * @return A string version of the bytes in hex form. 
+     * @return A string version of the bytes in hex form.
      */
     private String toHexadecimal(byte[] digest){
         String hash = "";
@@ -445,12 +448,12 @@ public class FileUtils
         return hash;
     }
 
-    
-    public boolean writeTo( String folder, CloudCoin cc){
+
+    public boolean writeTo( String folder, ShowCoins_CloudCoin cc){
         boolean goodSave = false;
         String json = setJSON( cc );
         File f = new File( folder + cc.fileName +".stack" );
-        if(f.exists() && !f.isDirectory()) { 
+        if(f.exists() && !f.isDirectory()) {
             System.out.println("A coin with that SN already exists in the folder.");
             return goodSave;
         }
@@ -462,20 +465,20 @@ public class FileUtils
             String wholeJson =   "{" + System.getProperty("line.separator") ;
             wholeJson +=   "\t\"cloudcoin\": [" + System.getProperty("line.separator") ;
             wholeJson += json;
-            wholeJson += "\t] "+ System.getProperty("line.separator"); 
-            wholeJson += "}";  
+            wholeJson += "\t] "+ System.getProperty("line.separator");
+            wholeJson += "}";
             writer.write( wholeJson );
             goodSave = true;
         }catch ( IOException e){ } finally{    try{
-                if ( writer != null)
-                    writer.close( );
-            }catch ( IOException e){}
+            if ( writer != null)
+                writer.close( );
+        }catch ( IOException e){}
         }
         return goodSave;
-    } 
-    
-    private CloudCoin parseJpeg( String wholeString){
-        CloudCoin cc = new CloudCoin();
+    }
+
+    private ShowCoins_CloudCoin parseJpeg( String wholeString){
+        ShowCoins_CloudCoin cc = new ShowCoins_CloudCoin();
         int startAn = 40;
         int endAn = 72;
         for(int i = 0; i< 25; i++){
@@ -494,9 +497,9 @@ public class FileUtils
         }//end for each pan
         return cc;
     }//end parse Jpeg
-    
-    
-    
+
+
+
     private String loadJSON( String jsonfile) throws FileNotFoundException {
         String jsonData = "";
         BufferedReader br = null;
@@ -518,8 +521,8 @@ public class FileUtils
         }
         return jsonData;
     }//en d json test
-  
-    
+
+
 
     /**
      * Method hexStringToByteArray turns a String of hex characters into bytes
@@ -532,19 +535,19 @@ public class FileUtils
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                + Character.digit(s.charAt(i+1), 16));
+                    + Character.digit(s.charAt(i+1), 16));
         }
         return data;
     }//End of hexString to byte array
 
-       /**
-     * Method writeJpeg writes a jpg image to the hard drive. 
+    /**
+     * Method writeJpeg writes a jpg image to the hard drive.
      *
      * @param path The full path to the file except the file name.
      * @param tag A parameter that adds a tag to the filename
      * @return true if file is saved, false if file is not saved
      */
-    public boolean writeJpeg( String path, String tag, byte[] jpeg, String fileName  ) throws IOException, FileNotFoundException{  
+    public boolean writeJpeg( String path, String tag, byte[] jpeg, String fileName  ) throws IOException, FileNotFoundException{
         boolean writeGood = true;
         String file = path + File.separator  + fileName + tag +".jpg";
         //System.out.println("Saving jpg: " + file);

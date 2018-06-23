@@ -1,4 +1,4 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.bank.bank.ImportStacks;
 
 import java.security.SecureRandom;
 import java.util.Calendar;
@@ -9,10 +9,13 @@ import java.util.Hashtable;
 /**
  * Creats a CloudCoin
  * Represents one CloudCoin
+ *
+ * ImportStacks_CloudCoin currently has no differences from CloudCoin.
+ *
  * @author Sean H. Worthington
  * @version 1/9/2016
  */
-public class CloudCoin
+class ImportStacks_CloudCoin
 {
     // instance variables
     /***
@@ -40,17 +43,17 @@ public class CloudCoin
      */
     public String ed; //Expiration Date expressed as a hex string like 97e2 Sep 2016
     /**
-     * Expiration date in the form of hexidecimal numbers to be stored in jpgs. First number is month. 
-     * last three numbers are the year. 
+     * Expiration date in the form of hexidecimal numbers to be stored in jpgs. First number is month.
+     * last three numbers are the year.
      */
-    public String edHex;//ed in hex form. 
+    public String edHex;//ed in hex form.
     /**
      * Health or Hit Points. (1-25, One point for each server not failed). Every time a RAIDA says it is counterfeit the HP goes down.
      */
     public int hp;//HitPoints (1-25, One point for each server not failed)
     /**
      * Added Owner Indexed Data: The owner of the coin can use this space to put an array of their own data. This is an array of strings.
-     * Each string is in the form of a key value pair seperated by an equals sign like "fracked=pppppppppppppppppppppppp". 
+     * Each string is in the form of a key value pair seperated by an equals sign like "fracked=pppppppppppppppppppppppp".
      */
     public Dictionary aoid = new Hashtable();//Account or Owner ID
     /**
@@ -58,20 +61,20 @@ public class CloudCoin
      */
     public String fileName;
     /**
-     * The coin represented as a JSON string that can be written to a .stack file. 
+     * The coin represented as a JSON string that can be written to a .stack file.
      */
     public String json;
     /**
-     * The coin represented as a Byte array that can be written to a .jpg file. 
+     * The coin represented as a Byte array that can be written to a .jpg file.
      */
     public byte[] jpeg;
     /**
-     * How many years until the coin expires. Now two years. 
+     * How many years until the coin expires. Now two years.
      */
     public static final int YEARSTILEXPIRE = 2;
     /**
      * The extension that the file should get if stored internally inside an application. Is based on the status of the coin:
-     * "suspect" (Has not been authenticated yet), "bank" (Has been authenticated and is known to be good), "fracked" (Some RAIDA are fracked), "counterfeit" 
+     * "suspect" (Has not been authenticated yet), "bank" (Has been authenticated and is known to be good), "fracked" (Some RAIDA are fracked), "counterfeit"
      */
     public String extension; //
     public String[] gradeStatus = new String[3];//What passed, what failed, what was undetected
@@ -83,12 +86,12 @@ public class CloudCoin
      * @param sn Serial Number
      * @param ans Authenticity Numbers
      * @param ed Expiration Date
-     * @param aoid an array of strings like "fracked=ppppppfppppppppfppp" 
+     * @param aoid an array of strings like "fracked=ppppppfppppppppfppp"
      */
-    public CloudCoin(int nn, int sn, String[] ans, String ed, Dictionary aoid, String extension  )
+    public ImportStacks_CloudCoin(int nn, int sn, String[] ans, String ed, Dictionary aoid, String extension  )
     { // initialise instance variables
         this.nn = nn;
-        this.sn = sn;     
+        this.sn = sn;
         this.ans = ans;
         this.ed = ed;
         this.hp = 25;
@@ -102,7 +105,7 @@ public class CloudCoin
         }//end for each pan
     }
 
-    public CloudCoin( )//Default constructor
+    public ImportStacks_CloudCoin( )//Default constructor
     {
     }
     /**

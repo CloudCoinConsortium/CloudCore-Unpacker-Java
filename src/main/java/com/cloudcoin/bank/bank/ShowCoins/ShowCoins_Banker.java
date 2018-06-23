@@ -1,20 +1,20 @@
-package com.cloudcoin.bank.bank.ImportStacks;
+package com.cloudcoin.bank.bank.ShowCoins;
 
 /**
- * ImportStacks_Banker can return a detailed balance of all the coins.
+ * ShowCoins_Banker can return a detailed balance of all the coins.
  *
- * ImportStacks_Banker has the following differences from Banker:
- * Uses ImportStacks_FileUtils instead of FileUtils.
+ * ShowCoins_Banker has the following differences from Banker:
+ * Uses ShowCoins_FileUtils instead of FileUtils.
  *
  * @author Sean H. Worthington
  * @version 1/14/2017
  */
-class ImportStacks_Banker {
+class ShowCoins_Banker {
 
 
     // Fields
 
-    private ImportStacks_FileUtils fileUtils;
+    private ShowCoins_FileUtils fileUtils;
 
 
     // Methods
@@ -22,7 +22,7 @@ class ImportStacks_Banker {
     /**
      * Constructor for objects of class Banker
      */
-    public ImportStacks_Banker (ImportStacks_FileUtils fileUtils)
+    public ShowCoins_Banker(ShowCoins_FileUtils fileUtils)
     {
         this.fileUtils =  fileUtils;
     }

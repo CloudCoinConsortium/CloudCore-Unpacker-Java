@@ -1,4 +1,4 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.bank.bank.ImportStacks;
 
 /**
  * Used to track the progress of fixing a fracktured cloud coin
@@ -6,7 +6,7 @@ package com.cloudcoin.bank.bank;
  * @author Sean H. Worthington
  * @version 1/2/2017
  */
-public class FixitHelper
+class ImportStacks_FixitHelper
 {
     // instance variables
     /**
@@ -34,8 +34,8 @@ public class FixitHelper
      * The triad that is being examined (Each triad will be examined in turn until one works)
      */
     public int[] currentTriad;
-  
-  
+
+
     /**
      * Is the GUID fixed yet? Do we need to try another corner?
      */
@@ -46,14 +46,14 @@ public class FixitHelper
     public boolean finnished = false;//All triads have been tried
 
 
-    
+
     /**
      * FixitHelper Constructor
      *
      * @param id The RAIDA ID like RAIDA12 would be 12
      * @param brokeCoin The CloudCoin that needs to be fixed.
      */
-    public FixitHelper(int raidaNumber )
+    public ImportStacks_FixitHelper(int raidaNumber )
     {
         //Create an array so we can make sure all the servers submitted are within this allowabel group of servers.
         int[] trustedServers  = new int[] { 33, 33, 33, 33,  33,  33,  33,  37 };//bogus data to make sure initializtion happened

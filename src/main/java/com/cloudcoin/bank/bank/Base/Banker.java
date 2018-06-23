@@ -1,18 +1,25 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.bank.bank.Base;
 
 /**
- * Write a description of class Banker here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * Banker can return a detailed balance of all the coins.
+ *
+ * @author Sean H. Worthington
+ * @version 1/14/2017
  */
-public class Banker
-{
-    FileUtils fileUtils;
+class Banker {
+
+
+    // Fields
+
+    private FileUtils fileUtils;
+
+
+    // Methods
+
     /**
      * Constructor for objects of class Banker
      */
-    public Banker(FileUtils fileUtils )
+    public Banker (FileUtils fileUtils)
     {
         this.fileUtils =  fileUtils;
     }
@@ -20,14 +27,14 @@ public class Banker
     /**
      * Method countCoins counts how many coins of a given extension are in a given directory
      *
-     * @param directoryPath A folder
-     * @return An array of the differnt denominations of coins. The first index is the total amount of all coins added together. 
+     * @param directoryPath A folder path.
+     * @return An array of the different denominations of coins. The first index is the total amount of all coins added together.
      */
-    public int[] countCoins( String directoryPath ){
-        int totalCount =  0;
-        int[] returnCounts = new int[6];//0. Total, 1.1s, 2,5s, 3.25s 4.100s, 5.250s
+    public int[] countCoins (String directoryPath) {
+        int[] returnCounts = new int[6]; // 0. Total, 1.1s, 2,5s, 3.25s 4.100s, 5.250s
+
         String[] fileNames = fileUtils.selectFileNamesInFolder( directoryPath );
-        for(int i = 0 ; i < fileNames.length; i++){
+        for (int i = 0 ; i < fileNames.length; i++) {
             String[] nameParts = fileNames[i].split("\\.");
             String denomination = nameParts[0];
             switch( denomination ){
@@ -35,9 +42,9 @@ public class Banker
                 case "5": returnCounts[0] += 5; returnCounts[2]++; break;
                 case "25": returnCounts[0] += 25; returnCounts[3]++; break;
                 case "100": returnCounts[0] += 100; returnCounts[4]++; break;
-                case "250": returnCounts[0] += 250; returnCounts[5]++; break;  
-            }//end switch
-        }//end for each coin
+                case "250": returnCounts[0] += 250; returnCounts[5]++; break;
+            }
+        }
         return returnCounts;
-    }//end count coins
+    }
 }

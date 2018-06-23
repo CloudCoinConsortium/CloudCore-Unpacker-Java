@@ -1,18 +1,15 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.bank.bank.ShowCoins;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+/**
+ * ShowCoins_ShowCoins has the following differences from ShowCoins:
+ * Uses Application_ShowCoins instead of BankApplication.
+ */
+public abstract class ShowCoins_ShowCoins {
 
-@Controller
-public abstract class ShowCoins {
-
-    @RequestMapping("/showCoins")
-    @ResponseBody
     public static void showCoins() {
-        Banker bank = new Banker(BankApplication.fileUtils);
-        int[] bankTotals = bank.countCoins(BankApplication.bankFolder);
-        int[] frackedTotals = bank.countCoins(BankApplication.frackedFolder);
+        ShowCoins_Banker bank = new ShowCoins_Banker(Application_ShowCoins.fileUtils);
+        int[] bankTotals = bank.countCoins(Application_ShowCoins.bankFolder);
+        int[] frackedTotals = bank.countCoins(Application_ShowCoins.frackedFolder);
         //int[] counterfeitTotals = bank.countCoins( counterfeitFolder );
         int grandTotal = bankTotals[0] + frackedTotals[0];
 

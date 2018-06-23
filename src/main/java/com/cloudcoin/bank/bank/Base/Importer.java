@@ -1,16 +1,11 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.bank.bank.Base;
 
-import com.cloudcoin.bank.bank.CloudCoin;
-import com.cloudcoin.bank.bank.FileUtils;
-import com.cloudcoin.bank.bank.ImportStacks.ImportStacks_FileUtils;
-import com.cloudcoin.bank.bank.ImportStacks.ImportStacks_Importer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Dictionary;
 
 /**
  * Everytime you want to import some files into the suspect folder, you create a new importer
@@ -20,7 +15,7 @@ import java.util.Dictionary;
  * @author Sean H. Worthington
  * @version 1/14/2017
  */
-public class Importer {
+class Importer {
 
     FileUtils fileUtils;
 
@@ -63,7 +58,7 @@ public class Importer {
                 return false;// System.out.println("Failed to load JPEG file");
             }
         } else if (extension.equals("stack")) {
-            if (!ImportStacks_Importer.importStack(fileUtils, fname)) {
+            if (!importStack(fname)) {
                 fileUtils.moveToTrashFolder(fname);
                 return false;// System.out.println("Failed to load .stack file");
             }
@@ -89,5 +84,35 @@ public class Importer {
         return false;
     }
 
+    public boolean importStack(String fileName) {
+        String fileJson;
+        try {
+            fileJson = fileUtils.importJSON(fileName);
+        } catch (IOException ex) {
+            System.out.println("Error importing stack " + ex);
+            return false;
+        }
+        JSONArray incomeJsonArray;
+        try {
+            JSONObject json = new JSONObject(fileJson);
+            incomeJsonArray = json.getJSONArray("cloudcoin");
+            CloudCoin tempCoin;
+            for (int i = 0; i < incomeJsonArray.length(); i++) {
+                JSONObject childJSONObject = incomeJsonArray.getJSONObject(i);
+                int nn = childJSONObject.getInt("nn");
+                int sn = childJSONObject.getInt("sn");
+                JSONArray an = childJSONObject.getJSONArray("an");
+                String[] ans = FileUtils.toStringArray(an);
+                String ed = childJSONObject.getString("ed");
 
+                tempCoin = new CloudCoin(nn, sn, ans, ed, null, "suspect");
+                fileUtils.writeTo(fileUtils.suspectFolder, tempCoin);
+                fileUtils.moveToImportedFolder(fileName);
+            }
+            return true;
+        } catch (JSONException ex) {
+            System.out.println("Stack File " + fileName + " Corrupt. See CloudCoin file api and edit your stack file: " + ex);
+            return false;
+        }
+    }
 }

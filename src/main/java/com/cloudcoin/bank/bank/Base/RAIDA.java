@@ -1,4 +1,4 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.bank.bank.Base;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -13,7 +13,7 @@ import java.util.concurrent.*;
  * @author Sean H. Worthington
  * @version 1/8/2016
  */
-public class RAIDA {   // instance variables
+class RAIDA {   // instance variables
     /**
      * An array of 25 detection agents that make up the RAIDA.
      */
@@ -45,7 +45,7 @@ public class RAIDA {   // instance variables
     /**
      * Method detectCoin
      *
-     * @param newCoin A CloudCoin that will be detected.
+     * @param cc A CloudCoin that will be detected.
      */
     public CloudCoin detectCoin(CloudCoin cc) {
         // Make an array to capture the results of the detection. 

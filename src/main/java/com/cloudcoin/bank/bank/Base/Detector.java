@@ -1,9 +1,5 @@
-package com.cloudcoin.bank.bank.ImportStacks;
+package com.cloudcoin.bank.bank.Base;
 
-import com.cloudcoin.bank.bank.CloudCoin;
-import com.cloudcoin.bank.bank.FileUtils;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -13,13 +9,13 @@ import java.io.IOException;
  * @author Sean H. Worthington
  * @version 1/14/2017
  */
-public class Detector {
+class Detector {
 
-    ImportStacks_RAIDA raida;
+    RAIDA raida;
     FileUtils fileUtils;
 
     public Detector(FileUtils fileUtils, int timeout) {
-        raida = new ImportStacks_RAIDA(timeout);
+        raida = new RAIDA(timeout);
         this.fileUtils = fileUtils;
     }
 

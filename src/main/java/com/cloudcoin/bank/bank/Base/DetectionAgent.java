@@ -1,4 +1,4 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.bank.bank.Base;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +14,7 @@ import java.time.Instant;
  * @author Sean Worthington
  * @version 1/1/2017
  */
-public class DetectionAgent
+class DetectionAgent
 {
     // instance variables
     /**
