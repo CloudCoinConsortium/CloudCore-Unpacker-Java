@@ -12,7 +12,7 @@ import java.util.Hashtable;
  * @author Sean H. Worthington
  * @version 1/9/2016
  */
-class CloudCoin
+public class CloudCoin
 {
     // instance variables
     /***

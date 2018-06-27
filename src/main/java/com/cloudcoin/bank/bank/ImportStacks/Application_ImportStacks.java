@@ -1,5 +1,7 @@
 package com.cloudcoin.bank.bank.ImportStacks;
 
+import com.cloudcoin.bank.bank.Base.FileUtils;
+
 import java.io.File;
 
 class Application_ImportStacks {
@@ -15,6 +17,7 @@ class Application_ImportStacks {
     public static String directoryFolder = rootFolder +  "Directory" + File.separator;;
     public static String exportFolder = rootFolder +  "Export" + File.separator;
 
+    public static FileUtils baseFileUtils = new FileUtils( rootFolder, importFolder, importedFolder, trashFolder, suspectFolder, frackedFolder, bankFolder, templateFolder, counterfeitFolder, directoryFolder, exportFolder  );
     public static ImportStacks_FileUtils fileUtils = new ImportStacks_FileUtils( rootFolder, importFolder, importedFolder, trashFolder, suspectFolder, frackedFolder, bankFolder, templateFolder, counterfeitFolder, directoryFolder, exportFolder  );
 
     public static void main(String[] args) {

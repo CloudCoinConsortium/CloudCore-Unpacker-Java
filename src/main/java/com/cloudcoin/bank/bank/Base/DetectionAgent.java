@@ -14,7 +14,7 @@ import java.time.Instant;
  * @author Sean Worthington
  * @version 1/1/2017
  */
-class DetectionAgent
+public class DetectionAgent
 {
     // instance variables
     /**

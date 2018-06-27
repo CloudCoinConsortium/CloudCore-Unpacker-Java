@@ -6,7 +6,7 @@ package com.cloudcoin.bank.bank.Base;
  * @author Sean H. Worthington
  * @version 1/14/2017
  */
-class Banker {
+public class Banker {
 
 
     // Fields

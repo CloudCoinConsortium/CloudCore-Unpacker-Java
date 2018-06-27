@@ -1,15 +1,18 @@
-package com.cloudcoin.bank.bank.ShowCoins;
+package com.cloudcoin.bank.bank.ImportStacks;
+
+import com.cloudcoin.bank.bank.Base.Banker;
 
 /**
- * ShowCoins_ShowCoins has the following differences from ShowCoins:
- * Uses Application_ShowCoins instead of BankApplication.
+ * ImportStacks_ShowCoins has the following differences from ShowCoins:
+ * Uses Application_ImportStacks instead of BankApplication.
+ * Method showCoins() is static instead of instance-based.
  */
-public abstract class ShowCoins_ShowCoins {
+class ImportStacks_ShowCoins {
 
     public static void showCoins() {
-        ShowCoins_Banker bank = new ShowCoins_Banker(Application_ShowCoins.fileUtils);
-        int[] bankTotals = bank.countCoins(Application_ShowCoins.bankFolder);
-        int[] frackedTotals = bank.countCoins(Application_ShowCoins.frackedFolder);
+        Banker bank = new Banker(Application_ImportStacks.fileUtils);
+        int[] bankTotals = bank.countCoins(Application_ImportStacks.bankFolder);
+        int[] frackedTotals = bank.countCoins(Application_ImportStacks.frackedFolder);
         int grandTotal = bankTotals[0] + frackedTotals[0];
 
         System.out.println("Your Bank Inventory:");

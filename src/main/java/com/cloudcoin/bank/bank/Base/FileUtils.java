@@ -15,7 +15,7 @@ import java.util.*;
  * @author Sean H. Worthington
  * @version 1/17/2017
  */
-class FileUtils
+public class FileUtils
 {
     // instance variables
     public  String rootFolder; 

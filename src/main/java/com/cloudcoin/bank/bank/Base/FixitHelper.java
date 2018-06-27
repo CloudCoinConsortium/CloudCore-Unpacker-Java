@@ -6,7 +6,7 @@ package com.cloudcoin.bank.bank.Base;
  * @author Sean H. Worthington
  * @version 1/2/2017
  */
-class FixitHelper
+public class FixitHelper
 {
     // instance variables
     /**

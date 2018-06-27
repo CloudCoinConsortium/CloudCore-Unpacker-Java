@@ -9,7 +9,7 @@ import java.io.IOException;
  * @author Sean H. Worthington
  * @version 1/14/2017
  */
-class Detector {
+public class Detector {
 
     RAIDA raida;
     FileUtils fileUtils;

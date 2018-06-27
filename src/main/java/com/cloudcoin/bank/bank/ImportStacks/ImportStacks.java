@@ -1,6 +1,8 @@
 package com.cloudcoin.bank.bank.ImportStacks;
 
 
+import com.cloudcoin.bank.bank.Base.Detector;
+
 class ImportStacks {
 
     public static void importCoins() {
@@ -13,7 +15,7 @@ class ImportStacks {
         }
 
         // Move all coins to seperate JSON files in the the suspect folder.
-        ImportStacks_Detector detector = new ImportStacks_Detector(Application_ImportStacks.fileUtils, 10000);
+        Detector detector = new Detector(Application_ImportStacks.baseFileUtils, 10000);
         int[] detectionResults = detector.detectAll();
         System.out.println("Total Received in bank: " + (detectionResults[0] + detectionResults[2]));//And the bank and the fractured for total
         System.out.println("Total Counterfeit: " + detectionResults[1]);
