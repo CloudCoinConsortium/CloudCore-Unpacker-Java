@@ -66,14 +66,9 @@ class CloudCoin
     /**
      * CloudCoin Constructor
      * This is used for importing new coins from the outside
-     * @param nn Network Number
-     * @param sn Serial Number
-     * @param ans Authenticity Numbers
-     * @param ed Expiration Date
-     * @param aoid an array of strings like "memo=carpayment"
+     * @param binary The binary file for a CloudCoin.
      */
-    public CloudCoin( byte[] binary)
-    { // initialise instance variables
+    public CloudCoin( byte[] binary) {
         this.binary = binary;
         coinMode = binary[3];
         coinName = Arrays.copyOfRange(binary, 4, 12);
@@ -83,6 +78,8 @@ class CloudCoin
         sn = (binary[18] & 0xff) | ((binary[17] & 0xff) << 8) | ((binary[16] & 0x0f) << 16);
         pown = Arrays.copyOfRange(binary, 19, 31);
         an = Arrays.copyOfRange(binary, 32, 431);
+
+        fileName = getDenomination() + ".CloudCoin." + nn + "." + sn + ".";
     }
 
      /**

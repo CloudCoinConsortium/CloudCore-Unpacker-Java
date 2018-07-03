@@ -40,11 +40,17 @@ class Unpacker {
              int indx = fileNames[i].lastIndexOf('.');
              if (indx > 0) {
                  extension = fileNames[i].substring(indx+1);
-                 if( extension.equalsIgnoreCase("stack") || extension.equalsIgnoreCase("coin")){
-                           if (!importOneFile(fileNames[i])) {//Failedt trying to import one file
-                               fileUtils.moveToTrashFolder(fileNames[i]);
-                            }// end if failed trying to import one file
+
+                 if ("stack".equalsIgnoreCase(extension)) {
+                     if (importOneFile(fileNames[i]))
+                         continue;
                  }
+                 else if ("coin".equalsIgnoreCase(extension)) {
+                     if (importOneFileBinary(fileNames[i]))
+                         continue;
+                 }
+
+                 fileUtils.moveToTrashFolder(fileNames[i]);
              }
         }
         if (fileNames.length == 0) {
@@ -68,11 +74,10 @@ class Unpacker {
     }
 
     public boolean importOneFileBinary(String fileNames) {
-        if (importBinary(fileNames)) {//Upack successful
+        if (importBinary(fileNames)) {
             fileUtils.moveToImportedFolder(fileNames);
         }
-        else//Failed to unpack
-        {
+        else {
             fileUtils.moveToTrashFolder(fileNames);
             return false;// System.out.println("Failed to load .stack file");
         }//End if
@@ -83,8 +88,9 @@ class Unpacker {
         try {
             byte[] fileBinary = fileUtils.loadBinaryFromFile(fileName);
             CloudCoin tempCoin = new CloudCoin(fileBinary);
-            fileUtils.writeStackToReceivedFolder(tempCoin.fileName, tempCoin.json);
+            fileUtils.writeBinaryToReceivedFolder(tempCoin.fileName, tempCoin.binary);
             fileUtils.moveToImportedFolder(fileName);
+            return true;
         } catch (IOException e) {
             System.out.println("File " + fileName + " Corrupt. See CloudCoin file api and edit your file: " + e);
             e.printStackTrace();
@@ -94,12 +100,12 @@ class Unpacker {
 
     public boolean importStack(String fileName) {
         String fileJson;
-        try {
-            fileJson = fileUtils.loadJSON(fileName);
-        } catch (IOException ex) {
-            System.out.println("Error importing stack " + ex);
+        fileJson = fileUtils.loadJSON(fileName);
+        if (fileJson == null) {
+            System.out.println("Error importing stack.");
             return false;
         }
+
         JSONArray incomeJsonArray;
         try {
             JSONObject json = new JSONObject(fileJson);

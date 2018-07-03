@@ -56,22 +56,23 @@ class FileUtils
 
     public boolean writeBinaryToReceivedFolder(String fileName, byte[] binary){
         try {
-            boolean goodSave = false;
-            File file = new File( receivedFolder + fileName + ".coin" );
+            fileName = receivedFolder + fileName + ".coin";
+            File file = new File(fileName);
             if (file.exists() && !file.isDirectory()) {
                 System.out.println("A coin with that SN already exists in the folder.");
-                return goodSave;
+                return false;
             }
             Path path = Paths.get(fileName);
+            Files.createFile(path);
             Files.write(path, binary);
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Error writin binary file: " + fileName);
             e.printStackTrace();
             return false;
         }
     }
-    
+
     public boolean writeStackToReceivedFolder(String fileName, String json){
         try{
             boolean goodSave = false;
@@ -81,19 +82,18 @@ class FileUtils
                return goodSave;
             }
             FileOutputStream is = new FileOutputStream(file);
-                OutputStreamWriter osw = new OutputStreamWriter(is);    
+                OutputStreamWriter osw = new OutputStreamWriter(is);
                 Writer w = new BufferedWriter(osw);
                 w.write(json);
                 w.close();
             return true;
         }catch(IOException e){
-         return false; 
-        
+         return false;
+
         }
     }//end write to received folder
-    
+
       public void moveToImportedFolder(String fileName){
-        System.out.println("Moving " + fileName + " to imported folder.");
         String source = importFolder + fileName;
         String target = importedFolder + fileName;
         new File(source).renameTo(new File(target));
@@ -105,8 +105,8 @@ class FileUtils
         String target = trashFolder + fileName;
         new File(source).renameTo(new File(target));
     }
-   
-    
+
+
     String loadJSON( String jsonfile) {
         String jsonData = "";
         BufferedReader br = null;
@@ -131,11 +131,11 @@ class FileUtils
     }//end json test
 
     byte[] loadBinaryFromFile(String filepath) throws IOException {
-        Path path = Paths.get(filepath);
+        Path path = Paths.get(importFolder + filepath);
         return Files.readAllBytes(path);
     }
 
-    
+
         public String[] selectFileNamesInFolder(String directoryPath) {
         File dir = new File(directoryPath);
         String candidateFileExt = "";
