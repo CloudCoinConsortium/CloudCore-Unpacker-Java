@@ -1,16 +1,20 @@
-package com.cloudcoin.bank.bank.ImportStacks;
+package com.cloudcoin.bank.bank;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
 
-class ImportStacks_FolderWatcher {
+class FolderWatcher {
 
     WatchService watcher;
 
-    public ImportStacks_FolderWatcher(String filepath) {
-        Path path = Paths.get(filepath);
+    public FolderWatcher(String filepath) {
         try {
+            File folder = new File(filepath);
+            if (!folder.exists())
+                folder.mkdir();
+            Path path = Paths.get(filepath);
             watcher = path.getFileSystem().newWatchService();
             path.register(watcher, StandardWatchEventKinds.ENTRY_CREATE);
         } catch (IOException e) {

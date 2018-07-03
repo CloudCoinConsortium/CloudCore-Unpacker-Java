@@ -1,1 +1,3 @@
-# CloudBank-Java
+# JavaCore
+
+Initial commit for JavaCore.
