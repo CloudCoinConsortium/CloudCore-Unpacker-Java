@@ -87,12 +87,20 @@ class Unpacker {
     public boolean importBinary(String fileName) {
         try {
             byte[] fileBinary = fileUtils.loadBinaryFromFile(fileName);
+            if (0 == fileBinary.length) {
+                System.out.println("File " + fileName + " was not found.");
+                return false;
+            }
+
             CloudCoin tempCoin = new CloudCoin(fileBinary);
             fileUtils.writeBinaryToReceivedFolder(tempCoin.fileName, tempCoin.binary);
             fileUtils.moveToImportedFolder(fileName);
             return true;
         } catch (IOException e) {
             System.out.println("File " + fileName + " Corrupt. See CloudCoin file api and edit your file: " + e);
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            System.out.println("File " + fileName + " was not detected properly." + e);
             e.printStackTrace();
         }
         return false;

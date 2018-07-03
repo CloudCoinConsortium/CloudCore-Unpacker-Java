@@ -4,6 +4,7 @@ package com.cloudcoin.bank.bank;
 import org.json.JSONArray;
 
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -130,7 +131,20 @@ class FileUtils
         return jsonData;
     }//end json test
 
-    byte[] loadBinaryFromFile(String filepath) throws IOException {
+    byte[] loadBinaryFromFile(String filepath) throws IOException, InterruptedException {
+        // Ensure that the file exists.
+        File file = new File(importFolder + filepath);
+        if (!file.exists()) {
+            wait(100);
+            if (!file.exists())
+                return new byte[0];
+        }
+
+        // Create a lock to ensure that no other program has access to the file.
+        FileChannel lockFile = new RandomAccessFile(file, "rw").getChannel();
+        lockFile.lock();
+        lockFile.close();
+
         Path path = Paths.get(importFolder + filepath);
         return Files.readAllBytes(path);
     }

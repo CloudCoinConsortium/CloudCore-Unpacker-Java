@@ -9,7 +9,14 @@ class FolderWatcher {
 
     WatchService watcher;
 
+    String filepath;
+
     public FolderWatcher(String filepath) {
+        this.filepath = filepath;
+        Initialize(filepath);
+    }
+
+    private void Initialize(String filepath) {
         try {
             File folder = new File(filepath);
             if (!folder.exists())
@@ -33,10 +40,26 @@ class FolderWatcher {
             WatchEvent event = events.get(i);
             if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
                 System.out.println("Created: " + event.context().toString());
+
+                resetWatcher(watchKey);
+
                 return true;
             }
         }
 
+        resetWatcher(watchKey);
+
         return false;
+    }
+
+    /**
+     * If the WatchKey does not successfully reset, then we create a new WatchService.
+     *
+     * @param watchKey
+     */
+    private void resetWatcher(WatchKey watchKey) {
+        if (!watchKey.reset()) {
+            Initialize(filepath);
+        }
     }
 }
