@@ -49,8 +49,11 @@ class Unpacker {
                      if (importOneFileBinary(fileNames[i]))
                          continue;
                  }
-
-                 fileUtils.moveToTrashFolder(fileNames[i]);
+                 else if ("jpg".equalsIgnoreCase(extension) ||
+                         "jpeg".equalsIgnoreCase(extension)) {
+                     if (importOneFileJPEG(fileNames[i]))
+                         continue;
+                 }
              }
         }
         if (fileNames.length == 0) {
@@ -84,6 +87,17 @@ class Unpacker {
         return true;
     }
 
+    public boolean importOneFileJPEG(String fileNames) {
+        if (importJPEG(fileNames)) {
+            fileUtils.moveToImportedFolder(fileNames);
+        }
+        else {
+            fileUtils.moveToTrashFolder(fileNames);
+            return false;
+        }
+        return true;
+    }
+
     public boolean importBinary(String fileName) {
         try {
             byte[] fileBinary = fileUtils.loadBinaryFromFile(fileName);
@@ -93,7 +107,10 @@ class Unpacker {
             }
 
             CloudCoin tempCoin = new CloudCoin(fileBinary);
-            fileUtils.writeBinaryToReceivedFolder(tempCoin.fileName, tempCoin.binary);
+            boolean resultWrite = fileUtils.writeBinaryToReceivedFolder(tempCoin.fileName, tempCoin.binary);
+            if (!resultWrite)
+                return false;
+
             fileUtils.moveToImportedFolder(fileName);
             return true;
         } catch (IOException e) {
@@ -102,6 +119,23 @@ class Unpacker {
         } catch (InterruptedException e) {
             System.out.println("File " + fileName + " was not detected properly." + e);
             e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean importJPEG(String fileName) {
+        try {
+            CloudCoin tempCoin = fileUtils.cloudCoinFromFile(fileUtils.importFolder + fileName);
+            boolean resultWrite = fileUtils.writeTo(fileUtils.suspectFolder, tempCoin);
+            if (!resultWrite)
+                return false;
+
+            fileUtils.moveToImportedFolder(fileName);
+            return true;
+        } catch (FileNotFoundException ex) {
+            System.out.println("File not found: " + fileName);
+        } catch (IOException ioex) {
+            System.out.println("IO Exception:" + fileName);
         }
         return false;
     }
@@ -128,7 +162,10 @@ class Unpacker {
                 String ed = childJSONObject.getString("ed");
 
                 tempCoin = new CloudCoin(nn, sn, ans);
-                fileUtils.writeStackToReceivedFolder(tempCoin.fileName, tempCoin.json);
+                boolean resultWrite = fileUtils.writeStackToReceivedFolder(tempCoin.fileName, tempCoin.json);
+                if (!resultWrite)
+                    return false;
+
                 fileUtils.moveToImportedFolder(fileName);
             }
             return true;

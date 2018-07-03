@@ -10,7 +10,7 @@ package com.cloudcoin.bank.bank;
 public class Main
 {
     public static void main(String[] args){
-        FileUtils fileUtils = new FileUtils( "C:\\CloudCoins-Java-Server\\", "Import", "Imported", "Trash", "Received");
+        FileUtils fileUtils = new FileUtils( "C:\\CloudCoins-Java-Server\\", "Import", "Imported", "Trash", "Suspect");
         FolderWatcher watcher = new FolderWatcher(fileUtils.importFolder);
         boolean stop = false;
 

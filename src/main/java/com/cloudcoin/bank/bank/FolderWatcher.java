@@ -59,6 +59,14 @@ class FolderWatcher {
      */
     private void resetWatcher(WatchKey watchKey) {
         if (!watchKey.reset()) {
+            try {
+                watcher.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                watcher = null;
+            }
+
             Initialize(filepath);
         }
     }

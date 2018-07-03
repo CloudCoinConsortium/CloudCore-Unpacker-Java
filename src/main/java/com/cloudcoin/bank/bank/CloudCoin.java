@@ -1,9 +1,8 @@
 package com.cloudcoin.bank.bank;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
+import java.security.SecureRandom;
+import java.util.*;
 
 
 /**
@@ -24,11 +23,14 @@ class CloudCoin
     public String[] ans = new String[25] ;//Authenticity Numbers
     public String[] pastStatus = new String[25] ;//fail, pass, error, unknown (could not connect to raida)
     public String ed; //Expiration Date expressed as a hex string like 97e2 Sep 2016
-    public String aoid;
+    public String aoidText;
     public String fileName;
     public String json;
     public static final int YEARSTILEXPIRE = 2;
     public String extension; //
+
+
+    // Binary variables
 
     public byte[] binary; // The CloudCoin binary file
     public byte coinMode; // 0 transfer mode, 1 internal use
@@ -40,9 +42,32 @@ class CloudCoin
     public byte[] pown; // Last Pown results: 0 (unknown) 1 (pass) 2 (no response) E (error) F (fail)
     public byte[] an; // Authenticity numbers
 
+
+    // JPEG variables
+
+    /** The coin represented as a Byte array that can be written to a .jpg file. */
+    public byte[] jpeg;
+
+    /** Proposed Authenticity Numbers. 25 GUIDs without hyphens that will replace the ANs. */
+    public String[] pans = new String[25] ;
+
+    /** Added Owner Indexed Data: The owner of the coin can use this space to put an array of their own data. This is an array of strings.
+     * Each string is in the form of a key value pair seperated by an equals sign like "fracked=pppppppppppppppppppppppp".*/
+    public Dictionary aoid = new Hashtable();
+
+    /** Health or Hit Points. (1-25, One point for each server not failed). Every time a RAIDA says it is counterfeit the HP goes down. */
+    public int hp;
+
+
+    /** CloudCoin Constructor for importing jpg/jpeg files. */
+    public CloudCoin() {
+
+    }
+
+
     /**
-     * CloudCoin Constructor
-     * This is used for importing new coins from the outside
+     * CloudCoin Constructor for importing new coins from a JSON-encoded file.
+     *
      * @param nn Network Number
      * @param sn Serial Number
      * @param ans Authenticity Numbers
@@ -55,7 +80,7 @@ class CloudCoin
         this.sn = sn;
         this.ans = ans;
         this.ed = "";
-        this.aoid = "";
+        this.aoidText = "";
         this.fileName = getDenomination() +".CloudCoin." + this.nn +"."+ this.sn + ".";
         for(int i = 0; i< 25; i++){
             pastStatus[i] = "u";//Set them all to undetected
@@ -64,8 +89,8 @@ class CloudCoin
     }
 
     /**
-     * CloudCoin Constructor
-     * This is used for importing new coins from the outside
+     * CloudCoin Constructor for importing new coins from a binary file.
+     *
      * @param binary The binary file for a CloudCoin.
      */
     public CloudCoin( byte[] binary) {
@@ -127,7 +152,7 @@ class CloudCoin
         }//end for 25 ans
         json += "\"]," + System.getProperty("line.separator");//End of ans
         json += "\t\t\"ed\":\"9-2016\"," + System.getProperty("line.separator");
-        json += "\t\t\"aoid\": [" + aoid + "]" + System.getProperty("line.separator");
+        json += "\t\t\"aoidText\": [" + aoidText + "]" + System.getProperty("line.separator");
         json += "\t\t}"+ System.getProperty("line.separator"); 
     
         //Allways change expiration date when saving (not a truley accurate but good enought )
@@ -157,5 +182,20 @@ class CloudCoin
         year = year + YEARSTILEXPIRE;
         this.ed = month + "-" + year; 
     }//end calc exp date
+
+    /**
+     * Method generatePan creates secure random GUIDs that can be used as pans.
+     *
+     * @return String 32 hex character guid like 8d3eb063937164c789474f2a82c146d3 without hyphens
+    */
+    public String generatePan()
+    {
+        String AB = "0123456789ABCDEF";
+        SecureRandom rnd = new SecureRandom();
+        StringBuilder sb = new StringBuilder( 25 );
+        for( int i=0 ; i<32 ; i++ )
+            sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+        return sb.toString();
+    }
 
 }//End of class CloudCoin
