@@ -5,23 +5,37 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
 
+/**
+ * A WatchService class to simplify file detection.
+ *
+ * @author Ben Ward
+ * @version 7/5/2018
+ */
 class FolderWatcher {
 
-    WatchService watcher;
+    /** A WatchService to detect folder changes. */
+    private WatchService watcher;
 
-    String filepath;
+    /** The directory to be watched by the WatchService. */
+    private String directory;
 
-    public FolderWatcher(String filepath) {
-        this.filepath = filepath;
-        Initialize(filepath);
+    /** Constructor for objects of class FolderWatcher. */
+    public FolderWatcher(String directory) {
+        this.directory = directory;
+        Initialize(directory);
     }
 
-    private void Initialize(String filepath) {
+    /**
+     * Initializes a new WatchService to detect new files at the specified directory.
+     *
+     * @param directory the directory to be watched.
+     */
+    private void Initialize(String directory) {
         try {
-            File folder = new File(filepath);
+            File folder = new File(directory);
             if (!folder.exists())
                 folder.mkdir();
-            Path path = Paths.get(filepath);
+            Path path = Paths.get(directory);
             watcher = path.getFileSystem().newWatchService();
             path.register(watcher, StandardWatchEventKinds.ENTRY_CREATE);
         } catch (IOException e) {
@@ -30,6 +44,11 @@ class FolderWatcher {
         }
     }
 
+    /**
+     * Detects if a new file was created in the specified directory.
+     *
+     * @return {@code true} if a new file was created, otherwise returns {@code false}.
+     */
     public boolean newFileDetected() {
         WatchKey watchKey = watcher.poll();
         if (watchKey == null)
@@ -53,9 +72,10 @@ class FolderWatcher {
     }
 
     /**
-     * If the WatchKey does not successfully reset, then we create a new WatchService.
+     * Resets the WatchKey to re-queue the Watch Service. If the WatchKey does not successfully reset, then create a
+     * new WatchService.
      *
-     * @param watchKey
+     * @param watchKey The WatchKey generated
      */
     private void resetWatcher(WatchKey watchKey) {
         if (!watchKey.reset()) {
@@ -67,7 +87,7 @@ class FolderWatcher {
                 watcher = null;
             }
 
-            Initialize(filepath);
+            Initialize(directory);
         }
     }
 }

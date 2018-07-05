@@ -4,100 +4,110 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
- * ImportStacks_Importer has the following differences from Importer:
- * Uses ImportStacks_CloudCoin instead of CloudCoin.
- * Uses ImportStacks_FileUtils instead of FileUtils.
+ * Unpacker manages the files in the Import folder. The following filetypes will be parsed:
+ * <ul>
+ * <li>.coin</li>
+ * <li>.jpg/jpeg</li>
+ * <li>.stack</li>
+ * </ul>
+ * Files will fist be imported to the {@code Imported} folder. If the file contains valid CloudCoins, they will be
+ * extracted to the {@code Suspect} folder. If the file is invalid or duplicated, it will be moved to the {@code
+ * Trash} folder. Files in Trash may be renamed if the filename is taken.
+ *
+ * @author Ben Ward
+ * @version 7/5/2018
  */
 class Unpacker {
 
-    /**
-     * Fields
-     */
-    FileUtils fileUtils;
+    /** FileUtils for common operations and folder-specific management. */
+    private FileUtils fileUtils;
 
-    
+
     /**
-     * Constructor for objects of class Importer
+     * Constructor for objects of class Importer.
+     *
+     * @param fileUtils The FileUtils object pointing to the CloudCoin folders.
      */
-    public Unpacker( FileUtils fileUtils) {
-       this.fileUtils = fileUtils;
+    public Unpacker(FileUtils fileUtils) {
+        this.fileUtils = fileUtils;
     }
 
+    /**
+     * Attempts to import all files in the {@code Import} folder. The following filetypes will be parsed:
+     * <ul>
+     *     <li>.coin</li>
+     *     <li>.jpg/jpeg</li>
+     *     <li>.stack</li>
+     * </ul>
+     * Files will fist be imported to the {@code Imported} folder. If the file contains valid CloudCoins, they will be
+     * extracted to the {@code Suspect} folder. If the file is invalid or duplicated, it will be moved to the {@code
+     * Trash} folder. Files in Trash may be renamed if the filename is taken.
+     */
     public boolean importAll() {
-        String[] fileNames = fileUtils.selectFileNamesInFolder( fileUtils.importFolder );
-        String extension ="";
-        //System.out.println("Importing the following files (" + fnames.length + "):");
+        String[] fileNames = fileUtils.selectFileNamesInFolder(fileUtils.importFolder);
+        String extension;
+
         for (int i = 0; i < fileNames.length; i++) {
-            //System.out.println(fnames[i]);
-             //Go through every file in the import folder. If unpack fails, trash that file. 
-             
-             /*SEE IF FILE IS JPEG OR JSON*/
-             int indx = fileNames[i].lastIndexOf('.');
-             if (indx > 0) {
-                 extension = fileNames[i].substring(indx+1);
+            // Unpack every file in the import folder. Move bad files to the Trash folder.
+            int indx = fileNames[i].lastIndexOf('.');
+            if (indx > 0) {
+                extension = fileNames[i].substring(indx + 1);
 
-                 if ("stack".equalsIgnoreCase(extension)) {
-                     if (importOneFile(fileNames[i]))
-                         continue;
-                 }
-                 else if ("coin".equalsIgnoreCase(extension)) {
-                     if (importOneFileBinary(fileNames[i]))
-                         continue;
-                 }
-                 else if ("jpg".equalsIgnoreCase(extension) ||
-                         "jpeg".equalsIgnoreCase(extension)) {
-                     if (importOneFileJPEG(fileNames[i]))
-                         continue;
-                 }
-             }
+                if ("stack".equalsIgnoreCase(extension)) {
+                    if (importOneFile(fileNames[i]))
+                        continue;
+                } else if ("coin".equalsIgnoreCase(extension)) {
+                    if (importOneFileBinary(fileNames[i]))
+                        continue;
+                } else if ("jpg".equalsIgnoreCase(extension) ||
+                        "jpeg".equalsIgnoreCase(extension)) {
+                    if (importOneFileJPEG(fileNames[i]))
+                        continue;
+                }
+            }
         }
-        if (fileNames.length == 0) {
-            //System.out.println("There were no CloudCoins to import. Please place our CloudCoin .jpg and .stack files in your imports folder at " + fileUtils.importFolder);
-            return false;
-        } else {
-            return true;
-        }
+
+        return fileNames.length != 0;
     }
 
+    /** Attempt to import a {@code .stack} CloudCoin file. If unsuccessful, file will be trashed. */
     public boolean importOneFile(String fileNames) {
-        if (importStack(fileNames)) {//Upack successful
+        if (importStack(fileNames)) {
             fileUtils.moveToImportedFolder(fileNames);
-        }
-        else//Failed to unpack
-        {
+            return true;
+        } else {
             fileUtils.moveToTrashFolder(fileNames);
-            return false;// System.out.println("Failed to load .stack file");
-        }//End if
-        return true;
+            return false;
+        }
     }
 
+    /** Attempt to import a {@code .coin} CloudCoin file. If unsuccessful, file will be trashed. */
     public boolean importOneFileBinary(String fileNames) {
         if (importBinary(fileNames)) {
             fileUtils.moveToImportedFolder(fileNames);
-        }
-        else {
-            fileUtils.moveToTrashFolder(fileNames);
-            return false;// System.out.println("Failed to load .stack file");
-        }//End if
-        return true;
-    }
-
-    public boolean importOneFileJPEG(String fileNames) {
-        if (importJPEG(fileNames)) {
-            fileUtils.moveToImportedFolder(fileNames);
-        }
-        else {
+            return true;
+        } else {
             fileUtils.moveToTrashFolder(fileNames);
             return false;
         }
-        return true;
     }
 
+    /** Attempt to import a {@code .jpg}/{@code .jpeg} CloudCoin file. If unsuccessful, file will be trashed. */
+    public boolean importOneFileJPEG(String fileNames) {
+        if (importJPEG(fileNames)) {
+            fileUtils.moveToImportedFolder(fileNames);
+            return true;
+        } else {
+            fileUtils.moveToTrashFolder(fileNames);
+            return false;
+        }
+    }
+
+    /** Attempt to read a {@code .coin} CloudCoin file, and extract its CloudCoins. If unsuccessful, file will be trashed. */
     public boolean importBinary(String fileName) {
         try {
             byte[] fileBinary = fileUtils.loadBinaryFromFile(fileName);
@@ -123,6 +133,7 @@ class Unpacker {
         return false;
     }
 
+    /** Attempt to read a {@code .jpg}/{@code .jpeg} CloudCoin file, and extract its CloudCoins. If unsuccessful, file will be trashed. */
     public boolean importJPEG(String fileName) {
         try {
             CloudCoin tempCoin = fileUtils.cloudCoinFromFile(fileUtils.importFolder + fileName);
@@ -140,6 +151,7 @@ class Unpacker {
         return false;
     }
 
+    /** Attempt to read a {@code .stack} CloudCoin file, and extract its CloudCoins. If unsuccessful, file will be trashed. */
     public boolean importStack(String fileName) {
         String fileJson;
         fileJson = fileUtils.loadJSON(fileName);
@@ -174,6 +186,4 @@ class Unpacker {
             return false;
         }
     }
-    
-
 }
