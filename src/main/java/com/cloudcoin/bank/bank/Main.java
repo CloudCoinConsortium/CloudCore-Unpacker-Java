@@ -1,5 +1,7 @@
 package com.cloudcoin.bank.bank;
 
+import java.io.File;
+
 /**
  * Waits for new files in the import folder, then unpacks them to individual coins.
  *
@@ -9,7 +11,7 @@ package com.cloudcoin.bank.bank;
 public class Main {
 
     public static void main(String[] args) {
-        FileUtils fileUtils = new FileUtils("C:\\CloudCoins-Java-Server\\", "Import", "Imported", "Trash", "Suspect");
+        FileUtils fileUtils = new FileUtils("C:" + File.separator + "CloudCoins-Java-Server" + File.separator, "Import", "Imported", "Trash", "Suspect");
         FolderWatcher watcher = new FolderWatcher(fileUtils.importFolder);
         boolean stop = false;
 

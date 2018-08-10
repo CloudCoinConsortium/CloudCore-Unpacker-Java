@@ -134,24 +134,24 @@ class CloudCoin {
      * @return String
      */
     public String setJSON() {
-        json = "\t\t{" + System.getProperty("line.separator");
-        json += "\t\t\"nn\":\"1\"," + System.getProperty("line.separator");
-        json += "\t\t\"sn\":\"" + sn + "\"," + System.getProperty("line.separator");
+        json = "\t\t{" + System.lineSeparator();
+        json += "\t\t\"nn\":\"1\"," + System.lineSeparator();
+        json += "\t\t\"sn\":\"" + sn + "\"," + System.lineSeparator();
         json += "\t\t\"an\": [\"";
         for (int i = 0; i < 25; i++) {
             json += ans[i];
             if (i == 4 || i == 9 || i == 14 || i == 19) {
-                json += "\"," + System.getProperty("line.separator") + "\t\t\t\"";
+                json += "\"," + System.lineSeparator() + "\t\t\t\"";
             } else if (i == 24) {
                 //json += "\""; last one do nothing
             } else {//end if is line break
                 json += "\",\"";
             }//end else
         }//end for 25 ans
-        json += "\"]," + System.getProperty("line.separator");//End of ans
-        json += "\t\t\"ed\":\"9-2016\"," + System.getProperty("line.separator");
-        json += "\t\t\"aoidText\": [" + aoidText + "]" + System.getProperty("line.separator");
-        json += "\t\t}" + System.getProperty("line.separator");
+        json += "\"]," + System.lineSeparator();//End of ans
+        json += "\t\t\"ed\":\"9-2016\"," + System.lineSeparator();
+        json += "\t\t\"aoidText\": [" + aoidText + "]" + System.lineSeparator();
+        json += "\t\t}" + System.lineSeparator();
 
         //Allways change expiration date when saving (not a truley accurate but good enought )
         Date date = new Date();

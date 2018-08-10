@@ -84,11 +84,11 @@ class FileUtils {
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(folder + cc.fileName + ".stack"));
-            // System.out.println("\nSaving Coin file to Bank/" + this.fileName + extension );
-            String wholeJson = "{" + System.getProperty("line.separator");
-            wholeJson += "\t\"cloudcoin\": [" + System.getProperty("line.separator");
+            // System.out.println(System.lineSeparator() + "Saving Coin file to Bank/" + this.fileName + extension );
+            String wholeJson = "{" + System.lineSeparator();
+            wholeJson += "\t\"cloudcoin\": [" + System.lineSeparator();
             wholeJson += json;
-            wholeJson += "\t] " + System.getProperty("line.separator");
+            wholeJson += "\t] " + System.lineSeparator();
             wholeJson += "}";
             writer.write(wholeJson);
             goodSave = true;
@@ -277,22 +277,22 @@ class FileUtils {
      * @return String
      */
     public String setJSON(CloudCoin cc) {
-        String json = "\t\t{" + System.getProperty("line.separator");
-        json += "\t\t\"nn\":\"1\"," + System.getProperty("line.separator");
-        json += "\t\t\"sn\":\"" + cc.sn + "\"," + System.getProperty("line.separator");
+        String json = "\t\t{" + System.lineSeparator();
+        json += "\t\t\"nn\":\"1\"," + System.lineSeparator();
+        json += "\t\t\"sn\":\"" + cc.sn + "\"," + System.lineSeparator();
         json += "\t\t\"an\": [\"";
         for (int i = 0; i < 25; i++) {
             json += cc.ans[i];
             if (i == 4 || i == 9 || i == 14 || i == 19) {
-                json += "\"," + System.getProperty("line.separator") + "\t\t\t\"";
+                json += "\"," + System.lineSeparator() + "\t\t\t\"";
             } else if (i == 24) {
                 //json += "\""; last one do nothing
             } else {//end if is line break
                 json += "\",\"";
             }//end else
         }//end for 25 ans
-        json += "\"]," + System.getProperty("line.separator");//End of ans
-        json += "\t\t\"ed\":\"9-2016\"," + System.getProperty("line.separator");
+        json += "\"]," + System.lineSeparator();//End of ans
+        json += "\t\t\"ed\":\"9-2016\"," + System.lineSeparator();
         String aoids = "";
         if (cc.aoid == null) {
             aoids = "";
@@ -316,8 +316,8 @@ class FileUtils {
         //strAoids will have {} brackeds added for some reason. Strip them.
         strAoid = strAoid.replace("{", "");
         strAoid = strAoid.replace("}", "");
-        json += "\t\t\"aoid\": [" + strAoid + "]" + System.getProperty("line.separator");
-        json += "\t\t}" + System.getProperty("line.separator");
+        json += "\t\t\"aoid\": [" + strAoid + "]" + System.lineSeparator();
+        json += "\t\t}" + System.lineSeparator();
 
 
         //Allways change expiration date when saving (not a truley accurate but good enought )
@@ -347,7 +347,7 @@ class FileUtils {
             String line;
             br = new BufferedReader(new FileReader(importFolder + jsonFilePath));
             while ((line = br.readLine()) != null) {
-                jsonData += line + "\n";
+                jsonData += line + System.lineSeparator();
             }
         } catch (IOException e) {
             System.out.println("Failed to open " + jsonFilePath);
