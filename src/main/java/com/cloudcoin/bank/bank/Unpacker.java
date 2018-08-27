@@ -81,7 +81,7 @@ class Unpacker {
             }
 
             CloudCoin tempCoin = new CloudCoin(fileBinary);
-            boolean resultWrite = fileUtils.writeBinaryToReceivedFolder(tempCoin.fileName, tempCoin.binary);
+            boolean resultWrite = fileUtils.writeBinaryToReceivedFolder(tempCoin.currentFilename, tempCoin.binary);
             if (!resultWrite)
                 return false;
 
@@ -98,10 +98,7 @@ class Unpacker {
     public boolean importJPEG(String fileName) {
         try {
             CloudCoin tempCoin = fileUtils.cloudCoinFromFile(fileUtils.importFolder + fileName);
-            boolean resultWrite = fileUtils.writeTo(fileUtils.suspectFolder, tempCoin);
-            if (!resultWrite)
-                return false;
-
+            fileUtils.writeCoinToIndividualStacks(tempCoin, fileUtils.suspectFolder);
             fileUtils.moveToImportedFolder(fileName);
             return true;
         } catch (IOException ex) {

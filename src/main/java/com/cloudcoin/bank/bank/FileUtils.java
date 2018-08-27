@@ -1,6 +1,8 @@
 package com.cloudcoin.bank.bank;
 
+import com.cloudcoin.bank.bank.core.Config;
 import com.cloudcoin.bank.bank.core.Stack;
+import com.cloudcoin.bank.bank.util.CoinUtils;
 import com.cloudcoin.bank.bank.util.Utils;
 import com.google.gson.JsonSyntaxException;
 import org.json.JSONArray;
@@ -118,67 +120,6 @@ class FileUtils {
     }
 
     /**
-     * Writes a CloudCoin object to a new file.
-     *
-     * @return {@code true} if a new file is created and written to; {@code false} otherwise
-     */
-    public boolean writeTo(String folder, CloudCoin cc) {
-        boolean goodSave = false;
-        String json = setJSON(cc);
-        File file = new File(folder + cc.fileName + ".stack");
-        if (file.exists() && !file.isDirectory()) {
-            System.out.println("A jpg/jpeg with that SN already exists in the folder.");
-            return goodSave;
-        }
-
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter(new FileWriter(folder + cc.fileName + ".stack"));
-            //StringBuilder =
-
-            String wholeJson = "{" + System.lineSeparator();
-            wholeJson += "\t\"cloudcoin\": [" + System.lineSeparator();
-            wholeJson += json;
-            wholeJson += "\t] " + System.lineSeparator();
-            wholeJson += "}";
-            writer.write(wholeJson);
-            goodSave = true;
-        } catch (IOException e) {
-        } finally {
-            try {
-                if (writer != null)
-                    writer.close();
-            } catch (IOException e) {
-            }
-        }
-        return goodSave;
-    }
-
-    /**
-     * Writes a json-encoded CloudCoin to a new file.
-     *
-     * @return {@code true} if a new file is created and written to; {@code false} otherwise
-     */
-    public boolean writeStackToReceivedFolder(String fileName, String json) {
-        try {
-            File file = new File(suspectFolder + fileName + ".stack");
-            if (file.exists() && !file.isDirectory()) {
-                System.out.println("A stack with that SN already exists in the folder.");
-                return false;
-            }
-            FileOutputStream is = new FileOutputStream(file);
-            OutputStreamWriter osw = new OutputStreamWriter(is);
-            Writer w = new BufferedWriter(osw);
-            w.write(json);
-            w.close();
-            return true;
-        } catch (IOException e) {
-            return false;
-
-        }
-    }
-
-    /**
      * Writes a CloudCoins a Stack file.
      *
      * @param coin     the ArrayList of CloudCoins.
@@ -187,7 +128,7 @@ class FileUtils {
     public void writeCoinToIndividualStacks(CloudCoin coin, String filePath) {
         Stack stack = new Stack(coin);
         try {
-            Files.write(Paths.get(filePath + coin.FileName()), Utils.createGson().toJson(stack).getBytes(StandardCharsets.UTF_8));
+            Files.write(Paths.get(filePath + CoinUtils.generateFilename(coin)), Utils.createGson().toJson(stack).getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             System.out.println(e.getLocalizedMessage());
             e.printStackTrace();
@@ -245,10 +186,7 @@ class FileUtils {
         String extension = "";
         CloudCoin cc = new CloudCoin();
         //put some default values
-        for (int i = 0; i < 25; i++) {
-            cc.pans[i] = cc.generatePan();
-            cc.pastStatus[i] = "undetected";
-        }//end for each pan
+        CoinUtils.generatePAN(cc);
 
         /*SEE IF FILE IS JPEG OR JSON*/
         int indx = loadFilePath.lastIndexOf('.');
@@ -286,10 +224,10 @@ class FileUtils {
             //this.newCoins = new ImportStacks_CloudCoin[incomeJsonArray.length()];
             for (int i = 0; i < incomeJsonArray.length(); i++) {  // **line 2**
                 JSONObject childJSONObject = incomeJsonArray.getJSONObject(i);
-                cc.nn = childJSONObject.getInt("nn");
-                cc.sn = childJSONObject.getInt("sn");
+                cc.setNn(childJSONObject.getInt("nn"));
+                cc.setSn(childJSONObject.getInt("sn"));
                 JSONArray an = childJSONObject.getJSONArray("anBinary");
-                cc.an = toStringArray(an);
+                cc.setAn(toStringArray(an));
                 String ed = childJSONObject.getString("ed");
                 JSONArray aoid = childJSONObject.getJSONArray("aoid");
                 /*String[] strAoid = toStringArray(aoid);
@@ -303,9 +241,7 @@ class FileUtils {
                 }//end for each aoid*/
             }//end for each coin
         }//end if json
-        cc.fileName = cc.getDenomination() + ".CloudCoin." + cc.nn + "." + cc.sn + ".";
-        cc.json = "";
-        cc.jpeg = null;
+        cc.currentFilename = CoinUtils.getDenomination(cc) + ".CloudCoin." + cc.getNn() + "." + cc.getSn() + ".";
 
         return cc;
     }
@@ -321,84 +257,18 @@ class FileUtils {
         int startAn = 40;
         int endAn = 72;
         for (int i = 0; i < 25; i++) {
-            cc.an.set(i, wholeString.substring(startAn + (i * 32), endAn + (i * 32))); // System.out.println(i +": " +ans[i]);
+            cc.getAn().set(i, wholeString.substring(startAn + (i * 32), endAn + (i * 32))); // System.out.println(i +": " +ans[i]);
         }
 
-        cc.aoidOld = null;//wholeString.substring( 840, 895 );
+        //cc.aoidOld = null;//wholeString.substring( 840, 895 );
         //cc.hp = 25;//Integer.parseInt(wholeString.substring( 896, 896 ), 16);
-        cc.ed = wholeString.substring(898, 902);
-        cc.nn = Integer.parseInt(wholeString.substring(902, 904), 16);
-        cc.sn = Integer.parseInt(wholeString.substring(904, 910), 16);
+        cc.setEd(wholeString.substring(898, 902));
+        cc.setNn(Integer.parseInt(wholeString.substring(902, 904), 16));
+        cc.setSn(Integer.parseInt(wholeString.substring(904, 910), 16));
 
-        for (int i = 0; i < 25; i++) {
-            cc.pans[i] = cc.generatePan();
-            cc.pastStatus[i] = "undetected";
-        }
+        CoinUtils.generatePAN(cc);
         return cc;
     }
-
-    /**
-     * Converts a CloudCoin object to a JSON-encoded String. This is used when reading CloudCoin from a jpg/jpeg file.
-     *
-     * @return String
-     */
-    public String setJSON(CloudCoin cc) {
-        String json = "\t\t{" + System.lineSeparator();
-        json += "\t\t\"nn\":\"1\"," + System.lineSeparator();
-        json += "\t\t\"sn\":\"" + cc.sn + "\"," + System.lineSeparator();
-        json += "\t\t\"an\": [\"";
-        for (int i = 0; i < 25; i++) {
-            json += cc.an.get(i);
-            if (i == 4 || i == 9 || i == 14 || i == 19) {
-                json += "\"," + System.lineSeparator() + "\t\t\t\"";
-            } else if (i == 24) {
-                //json += "\""; last one do nothing
-            } else {//end if is line break
-                json += "\",\"";
-            }//end else
-        }//end for 25 ans
-        json += "\"]," + System.lineSeparator();//End of ans
-        json += "\t\t\"ed\":\"9-2016\"," + System.lineSeparator();
-        String aoids = "";
-        if (cc.aoidOld == null) {
-            aoids = "";
-        } else {
-            Enumeration<String> e = cc.aoidOld.keys();
-            int count = 0;
-            while (e.hasMoreElements()) {
-                if (count != 0) {
-                    aoids += ",";
-                }
-                String k = e.nextElement();
-                System.out.println("\"" + k + "=" + cc.aoidOld.get(k) + "\"");
-                count++;
-            }
-        }
-
-        String strAoid = "\"" + cc.aoidOld + "\"";//add quotation marks to the string for jason
-        if (cc.aoidOld == null) {
-            strAoid = "";//aoid is mull so don't need any quot marks.
-        }
-        //strAoids will have {} brackeds added for some reason. Strip them.
-        strAoid = strAoid.replace("{", "");
-        strAoid = strAoid.replace("}", "");
-        json += "\t\t\"aoidOld\": [" + strAoid + "]" + System.lineSeparator();
-        json += "\t\t}" + System.lineSeparator();
-
-
-        //Allways change expiration date when saving (not a truley accurate but good enought )
-        Date date = new Date();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        int month = cal.get(Calendar.MONTH);
-        int year = cal.get(Calendar.YEAR);
-        year = year + cc.YEARSTILEXPIRE;
-        String expDate = month + "-" + year;
-        json.replace("9-2016", expDate);
-        return json;
-
-    }
-
 
     /**
      * Attempts to read a JSON object from a file.
