@@ -1,10 +1,14 @@
 package com.cloudcoin.bank.bank;
 
+import com.cloudcoin.bank.bank.core.Stack;
+import com.cloudcoin.bank.bank.util.Utils;
+import com.google.gson.JsonSyntaxException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,7 +23,8 @@ import java.util.*;
  */
 class FileUtils {
 
-    // instance variables
+
+    // Fields
 
     public String rootFolder;
     public String importFolder;
@@ -31,7 +36,10 @@ class FileUtils {
      * <ul>
      * <li>-2000123011595999</li>
      * </ul> */
-    SimpleDateFormat dateFormat = new SimpleDateFormat("-yyyyMMddHHmmssSSS");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("-yyyyMMddHHmmssSSS");
+
+
+    // Constructors
 
     /** Constructor for objects of class FileUtils */
     public FileUtils(String rootFolder, String importFolder, String importedFolder, String trashFolder, String suspectFolder) {
@@ -40,6 +48,48 @@ class FileUtils {
         this.importedFolder = rootFolder + importedFolder + File.separator;
         this.trashFolder = rootFolder + trashFolder + File.separator;
         this.suspectFolder = rootFolder + suspectFolder + File.separator;
+
+        createDirectories();
+    }
+
+    public boolean createDirectories() {
+        try {
+            Files.createDirectories(Paths.get(rootFolder));
+
+            Files.createDirectories(Paths.get(importFolder));
+            Files.createDirectories(Paths.get(importedFolder));
+            Files.createDirectories(Paths.get(trashFolder));
+            Files.createDirectories(Paths.get(suspectFolder));
+        } catch (Exception e) {
+            System.out.println("FS#CD: " + e.getLocalizedMessage());
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Loads an array of CloudCoins from a Stack file.
+     *
+     * @param fullFilePath the absolute filepath of the Stack file.
+     * @return ArrayList of CloudCoins.
+     */
+    public static ArrayList<CloudCoin> loadCloudCoinsFromStack(String fullFilePath) {
+        try {
+            String file = new String(Files.readAllBytes(Paths.get(fullFilePath)));
+            Stack stack = Utils.createGson().fromJson(file, Stack.class);
+            for (CloudCoin coin : stack.cc)
+                coin.setFullFilePath(fullFilePath);
+            return new ArrayList<>(Arrays.asList(stack.cc));
+        } catch (IOException e) {
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (JsonSyntaxException e) {
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 
     /**
@@ -53,7 +103,7 @@ class FileUtils {
         try {
             File file = new File(fullFileName);
             if (file.exists() && !file.isDirectory()) {
-                System.out.println("A coin with that SN already exists in the folder.");
+                System.out.println("A coin with that Serial Number already exists in the folder.");
                 return false;
             }
             Path path = Paths.get(fullFileName);
@@ -61,7 +111,7 @@ class FileUtils {
             Files.write(path, binary);
             return true;
         } catch (Exception e) {
-            System.out.println("Error writin binary file: " + fullFileName);
+            System.out.println("Error writing binary file: " + fullFileName);
             e.printStackTrace();
             return false;
         }
@@ -75,8 +125,8 @@ class FileUtils {
     public boolean writeTo(String folder, CloudCoin cc) {
         boolean goodSave = false;
         String json = setJSON(cc);
-        File f = new File(folder + cc.fileName + ".stack");
-        if (f.exists() && !f.isDirectory()) {
+        File file = new File(folder + cc.fileName + ".stack");
+        if (file.exists() && !file.isDirectory()) {
             System.out.println("A jpg/jpeg with that SN already exists in the folder.");
             return goodSave;
         }
@@ -84,7 +134,8 @@ class FileUtils {
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(folder + cc.fileName + ".stack"));
-            // System.out.println(System.lineSeparator() + "Saving Coin file to Bank/" + this.fileName + extension );
+            //StringBuilder =
+
             String wholeJson = "{" + System.lineSeparator();
             wholeJson += "\t\"cloudcoin\": [" + System.lineSeparator();
             wholeJson += json;
@@ -110,11 +161,10 @@ class FileUtils {
      */
     public boolean writeStackToReceivedFolder(String fileName, String json) {
         try {
-            boolean goodSave = false;
             File file = new File(suspectFolder + fileName + ".stack");
             if (file.exists() && !file.isDirectory()) {
                 System.out.println("A stack with that SN already exists in the folder.");
-                return goodSave;
+                return false;
             }
             FileOutputStream is = new FileOutputStream(file);
             OutputStreamWriter osw = new OutputStreamWriter(is);
@@ -125,6 +175,22 @@ class FileUtils {
         } catch (IOException e) {
             return false;
 
+        }
+    }
+
+    /**
+     * Writes a CloudCoins a Stack file.
+     *
+     * @param coin     the ArrayList of CloudCoins.
+     * @param filePath the absolute filepath of the CloudCoin file, without the extension.
+     */
+    public void writeCoinToIndividualStacks(CloudCoin coin, String filePath) {
+        Stack stack = new Stack(coin);
+        try {
+            Files.write(Paths.get(filePath + coin.FileName()), Utils.createGson().toJson(stack).getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
         }
     }
 
@@ -222,19 +288,19 @@ class FileUtils {
                 JSONObject childJSONObject = incomeJsonArray.getJSONObject(i);
                 cc.nn = childJSONObject.getInt("nn");
                 cc.sn = childJSONObject.getInt("sn");
-                JSONArray an = childJSONObject.getJSONArray("an");
-                cc.ans = toStringArray(an);
+                JSONArray an = childJSONObject.getJSONArray("anBinary");
+                cc.an = toStringArray(an);
                 String ed = childJSONObject.getString("ed");
                 JSONArray aoid = childJSONObject.getJSONArray("aoid");
-                String[] strAoid = toStringArray(aoid);
+                /*String[] strAoid = toStringArray(aoid);
                 for (int j = 0; j < strAoid.length; j++) { //"fracked=ppppppppppppppppppppppppp"
                     if (strAoid[j].contains("=")) {//see if the string contains an equals sign
                         String[] keyvalue = strAoid[j].split("=");
-                        cc.aoid.put(keyvalue[0], keyvalue[1]);//index 0 is the key index 1 is the value.
+                        cc.aoidOld.put(keyvalue[0], keyvalue[1]);//index 0 is the key index 1 is the value.
                     } else { //There is something there but not a key value pair. Treak it like a memo
-                        cc.aoid.put("memo", strAoid[j]);
+                        cc.aoidOld.put("memo", strAoid[j]);
                     }//end if cointains an =
-                }//end for each aoid
+                }//end for each aoid*/
             }//end for each coin
         }//end if json
         cc.fileName = cc.getDenomination() + ".CloudCoin." + cc.nn + "." + cc.sn + ".";
@@ -255,11 +321,11 @@ class FileUtils {
         int startAn = 40;
         int endAn = 72;
         for (int i = 0; i < 25; i++) {
-            cc.ans[i] = wholeString.substring(startAn + (i * 32), endAn + (i * 32)); // System.out.println(i +": " +ans[i]);
+            cc.an.set(i, wholeString.substring(startAn + (i * 32), endAn + (i * 32))); // System.out.println(i +": " +ans[i]);
         }
 
-        cc.aoid = null;//wholeString.substring( 840, 895 );
-        cc.hp = 25;//Integer.parseInt(wholeString.substring( 896, 896 ), 16);
+        cc.aoidOld = null;//wholeString.substring( 840, 895 );
+        //cc.hp = 25;//Integer.parseInt(wholeString.substring( 896, 896 ), 16);
         cc.ed = wholeString.substring(898, 902);
         cc.nn = Integer.parseInt(wholeString.substring(902, 904), 16);
         cc.sn = Integer.parseInt(wholeString.substring(904, 910), 16);
@@ -282,7 +348,7 @@ class FileUtils {
         json += "\t\t\"sn\":\"" + cc.sn + "\"," + System.lineSeparator();
         json += "\t\t\"an\": [\"";
         for (int i = 0; i < 25; i++) {
-            json += cc.ans[i];
+            json += cc.an.get(i);
             if (i == 4 || i == 9 || i == 14 || i == 19) {
                 json += "\"," + System.lineSeparator() + "\t\t\t\"";
             } else if (i == 24) {
@@ -294,29 +360,29 @@ class FileUtils {
         json += "\"]," + System.lineSeparator();//End of ans
         json += "\t\t\"ed\":\"9-2016\"," + System.lineSeparator();
         String aoids = "";
-        if (cc.aoid == null) {
+        if (cc.aoidOld == null) {
             aoids = "";
         } else {
-            Enumeration<String> e = cc.aoid.keys();
+            Enumeration<String> e = cc.aoidOld.keys();
             int count = 0;
             while (e.hasMoreElements()) {
                 if (count != 0) {
                     aoids += ",";
                 }
                 String k = e.nextElement();
-                System.out.println("\"" + k + "=" + cc.aoid.get(k) + "\"");
+                System.out.println("\"" + k + "=" + cc.aoidOld.get(k) + "\"");
                 count++;
             }
         }
 
-        String strAoid = "\"" + cc.aoid + "\"";//add quotation marks to the string for jason
-        if (cc.aoid == null) {
+        String strAoid = "\"" + cc.aoidOld + "\"";//add quotation marks to the string for jason
+        if (cc.aoidOld == null) {
             strAoid = "";//aoid is mull so don't need any quot marks.
         }
         //strAoids will have {} brackeds added for some reason. Strip them.
         strAoid = strAoid.replace("{", "");
         strAoid = strAoid.replace("}", "");
-        json += "\t\t\"aoid\": [" + strAoid + "]" + System.lineSeparator();
+        json += "\t\t\"aoidOld\": [" + strAoid + "]" + System.lineSeparator();
         json += "\t\t}" + System.lineSeparator();
 
 
@@ -390,19 +456,20 @@ class FileUtils {
     /**
      * Returns an array containing all filenames in a directory.
      *
-     * @param directoryPath the directory to check for files
-     * @return String[]
+     * @param folderPath the folder to check for files.
+     * @return String Array.
      */
-    public String[] selectFileNamesInFolder(String directoryPath) {
-        File dir = new File(directoryPath);
-        String candidateFileExt = "";
-        Collection<String> files = new ArrayList<String>();
-        if (dir.isDirectory()) {
-            File[] listFiles = dir.listFiles();
+    public static String[] selectFileNamesInFolder(String folderPath) {
+        File folder = new File(folderPath);
+        Collection<String> files = new ArrayList<>();
+        if (folder.isDirectory()) {
+            File[] filenames = folder.listFiles();
 
-            for (File file : listFiles) {
-                if (file.isFile()) {//Only add files with the matching file extension
-                    files.add(file.getName());
+            if (null != filenames) {
+                for (File file : filenames) {
+                    if (file.isFile()) {
+                        files.add(file.getName());
+                    }
                 }
             }
         }
@@ -415,13 +482,13 @@ class FileUtils {
      * @param jsonArray a JSONArray object
      * @return String[]
      */
-    public static String[] toStringArray(JSONArray jsonArray) {
+    public static ArrayList<String> toStringArray(JSONArray jsonArray) {
         if (jsonArray == null)
             return null;
 
-        String[] arr = new String[jsonArray.length()];
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = jsonArray.optString(i);
+        ArrayList<String> arr = new ArrayList<>(jsonArray.length());
+        for (int i = 0; i < arr.size(); i++) {
+            arr.set(i, jsonArray.optString(i));
         }
         return arr;
     }

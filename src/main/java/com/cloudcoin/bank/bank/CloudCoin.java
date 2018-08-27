@@ -1,5 +1,9 @@
 package com.cloudcoin.bank.bank;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
@@ -11,14 +15,32 @@ import java.util.*;
  * @author Ben Ward
  * @version 7/5/2018
  */
-class CloudCoin {
-    // instance variables
+public class CloudCoin {
 
-    public int nn;//Network Numbers
-    public int sn;//Serial Number
-    public String[] ans = new String[25];//Authenticity Numbers
+
+    /* JSON Fields */
+
+    @Expose
+    @SerializedName("nn")
+    public int nn;
+    @Expose
+    @SerializedName("sn")
+    public int sn;
+    @Expose
+    @SerializedName("an")
+    public ArrayList<String> an = new ArrayList<>(25);
+    @Expose
+    @SerializedName("ed")
+    public String ed;
+    @Expose
+    @SerializedName("pown")
+    public String pown = "uuuuuuuuuuuuuuuuuuuuuuuuu";
+    @Expose
+    @SerializedName("aoid")
+    public ArrayList<String> aoid = new ArrayList<>();
+
+    // instance variables
     public String[] pastStatus = new String[25];//fail, pass, error, unknown (could not connect to raida)
-    public String ed; //Expiration Date expressed as a hex string like 97e2 Sep 2016
     public String aoidText;
     public String fileName;
     public String json;
@@ -35,8 +57,8 @@ class CloudCoin {
     public byte[] anTypes; // 4 hexadecimal numbers representing AN types: 0 (unknown) 1 (random number)
     // 2 (Hash of SN and pin/password) 3 (Hash of SN and email) 4 (Hash of SN and iris) 5 (Hash of SN and face)
     // 6 (Authority-assigned number) 7 (Hash of SN and fingerprint) 8 (Hash of SN and second user's pin)
-    public byte[] pown; // Last Pown results: 0 (unknown) 1 (pass) 2 (no response) E (error) F (fail)
-    public byte[] an; // Authenticity numbers
+    public byte[] pownBinary; // Last Pown results: 0 (unknown) 1 (pass) 2 (no response) E (error) F (fail)
+    public byte[] anBinary; // Authenticity numbers
 
 
     // JPEG variables
@@ -51,36 +73,16 @@ class CloudCoin {
      * Added Owner Indexed Data: The owner of the coin can use this space to put an array of their own data. This is an array of strings.
      * Each string is in the form of a key value pair seperated by an equals sign like "fracked=pppppppppppppppppppppppp".
      */
-    public Dictionary aoid = new Hashtable();
+    public Dictionary aoidOld = new Hashtable();
 
-    /** Health or Hit Points. (1-25, One point for each server not failed). Every time a RAIDA says it is counterfeit the HP goes down. */
-    public int hp;
+    public transient String folder;
+
+    public transient String currentFilename;
 
 
     /** CloudCoin Constructor for importing jpg/jpeg files. */
     public CloudCoin() {
 
-    }
-
-
-    /**
-     * CloudCoin Constructor for importing new coins from a JSON-encoded file.
-     *
-     * @param nn  Network Number
-     * @param sn  Serial Number
-     * @param ans Authenticity Numbers
-     */
-    public CloudCoin(int nn, int sn, String[] ans) {
-        this.nn = nn;
-        this.sn = sn;
-        this.ans = ans;
-        this.ed = "";
-        this.aoidText = "";
-        this.fileName = getDenomination() + ".CloudCoin." + this.nn + "." + this.sn + ".";
-        for (int i = 0; i < 25; i++) {
-            pastStatus[i] = "u"; // Set them all to undetected
-        }
-        this.json = setJSON();
     }
 
     /**
@@ -96,10 +98,32 @@ class CloudCoin {
         anTypes = Arrays.copyOfRange(binary, 13, 14);
         nn = binary[15];
         sn = (binary[18] & 0xff) | ((binary[17] & 0xff) << 8) | ((binary[16] & 0x0f) << 16);
-        pown = Arrays.copyOfRange(binary, 19, 31);
-        an = Arrays.copyOfRange(binary, 32, 431);
+        pownBinary = Arrays.copyOfRange(binary, 19, 31);
+        anBinary = Arrays.copyOfRange(binary, 32, 431);
 
         fileName = getDenomination() + ".CloudCoin." + nn + "." + sn + ".";
+    }
+
+    /**
+     * Returns a human readable String describing the contents of the CloudCoin.
+     *
+     * @return a String describing the CloudCoin.
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("cloudcoin: (nn:").append(nn).append(", sn:").append(sn);
+        if (null != ed) builder.append(", ed:").append(ed);
+        if (null != pownBinary) builder.append(", pown:").append(pownBinary);
+        if (null != aoidOld) builder.append(", aoid:").append(aoidOld.toString());
+        if (null != anBinary) builder.append(", anBinary:").append(anBinary.toString());
+
+        return builder.toString();
+    }
+
+
+    public String FileName() {
+        return this.getDenomination() + ".CloudCoin." + nn + "." + sn + ".";
     }
 
     /**
@@ -125,45 +149,6 @@ class CloudCoin {
             nom = 0;
         }
         return nom;
-    }
-
-
-    /**
-     * Converts a CloudCoin object to a JSON-encoded String. This is used when reading a CloudCoin from a text file.
-     *
-     * @return String
-     */
-    public String setJSON() {
-        json = "\t\t{" + System.lineSeparator();
-        json += "\t\t\"nn\":\"1\"," + System.lineSeparator();
-        json += "\t\t\"sn\":\"" + sn + "\"," + System.lineSeparator();
-        json += "\t\t\"an\": [\"";
-        for (int i = 0; i < 25; i++) {
-            json += ans[i];
-            if (i == 4 || i == 9 || i == 14 || i == 19) {
-                json += "\"," + System.lineSeparator() + "\t\t\t\"";
-            } else if (i == 24) {
-                //json += "\""; last one do nothing
-            } else {//end if is line break
-                json += "\",\"";
-            }//end else
-        }//end for 25 ans
-        json += "\"]," + System.lineSeparator();//End of ans
-        json += "\t\t\"ed\":\"9-2016\"," + System.lineSeparator();
-        json += "\t\t\"aoidText\": [" + aoidText + "]" + System.lineSeparator();
-        json += "\t\t}" + System.lineSeparator();
-
-        //Allways change expiration date when saving (not a truley accurate but good enought )
-        Date date = new Date();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        int month = cal.get(Calendar.MONTH);
-        int year = cal.get(Calendar.YEAR);
-        year = year + YEARSTILEXPIRE;
-        String expDate = month + "-" + year;
-        json.replace("9-2016", expDate);
-        return this.json;
-
     }
 
     /** Calculates the expiration date, after it has been authenticated. */
@@ -193,5 +178,10 @@ class CloudCoin {
         for (int i = 0; i < 32; i++)
             sb.append(AB.charAt(rnd.nextInt(AB.length())));
         return sb.toString();
+    }
+
+    public void setFullFilePath(String fullFilePath) {
+        this.folder = fullFilePath.substring(0, 1 + fullFilePath.lastIndexOf(File.separatorChar));
+        this.currentFilename = fullFilePath.substring(1 + fullFilePath.lastIndexOf(File.separatorChar, fullFilePath.length()));
     }
 }
