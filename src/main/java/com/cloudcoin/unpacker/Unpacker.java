@@ -1,10 +1,5 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.unpacker;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -24,18 +19,20 @@ import java.util.ArrayList;
  */
 class Unpacker {
 
-    /** FileUtils for common operations and folder-specific management. */
+
+    // Fields
+
     private FileUtils fileUtils;
 
 
-    /**
-     * Constructor for objects of class Importer.
-     *
-     * @param fileUtils The FileUtils object pointing to the CloudCoin folders.
-     */
+    // Constructors
+
     public Unpacker(FileUtils fileUtils) {
         this.fileUtils = fileUtils;
     }
+
+
+    // Methods
 
     /**
      * Attempts to import all files in the {@code Import} folder. The following filetypes will be parsed:
@@ -81,7 +78,7 @@ class Unpacker {
             }
 
             CloudCoin tempCoin = new CloudCoin(fileBinary);
-            boolean resultWrite = fileUtils.writeBinaryToReceivedFolder(tempCoin.currentFilename, tempCoin.binary);
+            boolean resultWrite = fileUtils.writeBinaryToReceivedFolder(tempCoin.currentFilename, fileBinary);
             if (!resultWrite)
                 return false;
 

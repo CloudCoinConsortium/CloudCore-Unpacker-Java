@@ -1,6 +1,6 @@
-package com.cloudcoin.bank.bank.core;
+package com.cloudcoin.unpacker.core;
 
-import com.cloudcoin.bank.bank.CloudCoin;
+import com.cloudcoin.unpacker.CloudCoin;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

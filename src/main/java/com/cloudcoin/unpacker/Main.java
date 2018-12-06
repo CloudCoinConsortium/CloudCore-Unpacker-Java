@@ -1,4 +1,4 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.unpacker;
 
 import java.io.File;
 
@@ -11,9 +11,22 @@ import java.io.File;
 public class Main {
 
     public static void main(String[] args) {
-        FileUtils fileUtils = new FileUtils("C:" + File.separator + "CloudCoins-Java-Server" + File.separator, "Import", "Imported", "Trash", "Suspect");
+        for (String arg : args) {
+            System.out.println("arg: " + arg);
+        }
+
+        FileUtils fileUtils = new FileUtils("C:" + File.separator + "CloudCoinServer" + File.separator +
+                "accounts" + File.separator + "DefaultUser" + File.separator,
+                "Import", "Imported", "Trash", "Suspect");
         FolderWatcher watcher = new FolderWatcher(fileUtils.importFolder);
         boolean stop = false;
+
+        System.out.println("found files: " + FileUtils.selectFileNamesInFolder(fileUtils.importFolder).length);
+
+        if (0 != FileUtils.selectFileNamesInFolder(fileUtils.importFolder).length) {
+            Unpacker myUnpacker = new Unpacker(fileUtils);
+            myUnpacker.importAll();
+        }
 
         System.out.println("Watching folders at " + fileUtils.importFolder + "...");
 

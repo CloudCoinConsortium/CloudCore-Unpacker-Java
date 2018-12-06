@@ -1,9 +1,8 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.unpacker;
 
-import com.cloudcoin.bank.bank.core.Config;
-import com.cloudcoin.bank.bank.core.Stack;
-import com.cloudcoin.bank.bank.util.CoinUtils;
-import com.cloudcoin.bank.bank.util.Utils;
+import com.cloudcoin.unpacker.core.Stack;
+import com.cloudcoin.unpacker.util.CoinUtils;
+import com.cloudcoin.unpacker.util.Utils;
 import com.google.gson.JsonSyntaxException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,7 +25,7 @@ import java.util.*;
 class FileUtils {
 
 
-    // Fields
+    /* Fields */
 
     public String rootFolder;
     public String importFolder;
@@ -35,13 +34,12 @@ class FileUtils {
     public String suspectFolder;
 
     /** A SimpleDateFormat for quickly fetching the current timestamp. A timestamp will be formatted as such:
-     * <ul>
-     * <li>-2000123011595999</li>
-     * </ul> */
+     * <ul><li>-2000123011595999</li></ul>
+     */
     private SimpleDateFormat dateFormat = new SimpleDateFormat("-yyyyMMddHHmmssSSS");
 
 
-    // Constructors
+    /* Constructors */
 
     /** Constructor for objects of class FileUtils */
     public FileUtils(String rootFolder, String importFolder, String importedFolder, String trashFolder, String suspectFolder) {
@@ -53,6 +51,9 @@ class FileUtils {
 
         createDirectories();
     }
+
+
+    /* Methods */
 
     public boolean createDirectories() {
         try {
@@ -128,7 +129,8 @@ class FileUtils {
     public void writeCoinToIndividualStacks(CloudCoin coin, String filePath) {
         Stack stack = new Stack(coin);
         try {
-            Files.write(Paths.get(filePath + CoinUtils.generateFilename(coin)), Utils.createGson().toJson(stack).getBytes(StandardCharsets.UTF_8));
+            String target = ensureFilenameUnique(CoinUtils.generateFilename(coin), ".stack", filePath);
+            Files.write(Paths.get(filePath + target), Utils.createGson().toJson(stack).getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             System.out.println(e.getLocalizedMessage());
             e.printStackTrace();
@@ -138,8 +140,11 @@ class FileUtils {
     /** Moves a file from the Import folder to the Imported folder. */
     public void moveToImportedFolder(String fileName) {
         String source = importFolder + fileName;
-        String target = importedFolder + fileName;
-        new File(source).renameTo(new File(target));
+        String name = fileName.substring(0, fileName.lastIndexOf('.'));
+        String extension = fileName.substring(fileName.lastIndexOf('.'));
+        String target = ensureFilenameUnique(name, extension, importedFolder);
+        System.out.println("moving to " + target);
+        new File(source).renameTo(new File(importedFolder + target));
     }
 
     /** Moves a file from the Import folder to the Trash folder. If the operation fails, attempt to rename the file. */
@@ -203,7 +208,7 @@ class FileUtils {
             fis.read(jpegHeader);// read bytes to the buffer
             wholeString = toHexadecimal(jpegHeader);// System.out.println(wholeString);
             fis.close();
-            parseJpeg(wholeString);
+            cc = parseJpeg(wholeString);
             //} catch (FileNotFoundException e) { // TODO Auto-generated catch block
             //  e.printStackTrace();
             //} catch (IOException e) { // TODO Auto-generated catch block
@@ -256,9 +261,12 @@ class FileUtils {
         CloudCoin cc = new CloudCoin();
         int startAn = 40;
         int endAn = 72;
+        ArrayList<String> ans = new ArrayList<>(25);
         for (int i = 0; i < 25; i++) {
-            cc.getAn().set(i, wholeString.substring(startAn + (i * 32), endAn + (i * 32))); // System.out.println(i +": " +ans[i]);
+            ans.add(i, wholeString.substring(startAn + (i * 32), endAn + (i * 32))); // System.out.println(i +": " +ans[i]);
+            System.out.println("an: " + ans.get(i));
         }
+        cc.setAn(ans);
 
         //cc.aoidOld = null;//wholeString.substring( 840, 895 );
         //cc.hp = 25;//Integer.parseInt(wholeString.substring( 896, 896 ), 16);
@@ -344,6 +352,20 @@ class FileUtils {
             }
         }
         return files.toArray(new String[]{});
+    }
+
+    public static String ensureFilenameUnique(String filename, String extension, String folder) {
+        if (!Files.exists(Paths.get(folder + filename + extension)))
+            return filename + extension;
+
+        filename = filename + '.';
+        String newFilename;
+        int loopCount = 0;
+        do {
+            newFilename = filename + Integer.toString(++loopCount);
+        }
+        while (Files.exists(Paths.get(folder + newFilename + extension)));
+        return newFilename + extension;
     }
 
     /**

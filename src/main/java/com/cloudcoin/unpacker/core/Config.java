@@ -1,4 +1,4 @@
-package com.cloudcoin.bank.bank.core;
+package com.cloudcoin.unpacker.core;
 
 public class Config {
 

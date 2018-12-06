@@ -1,13 +1,11 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.unpacker;
 
-import com.cloudcoin.bank.bank.core.Config;
-import com.cloudcoin.bank.bank.util.CoinUtils;
+import com.cloudcoin.unpacker.core.Config;
+import com.cloudcoin.unpacker.util.CoinUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.util.*;
 
 /**
@@ -30,7 +28,7 @@ public class CloudCoin {
     private int sn;
     @Expose
     @SerializedName("an")
-    private ArrayList<String> an = new ArrayList<>(25);
+    private ArrayList<String> an = new ArrayList<>(Config.nodeCount);
     @Expose
     @SerializedName("ed")
     private String ed;
@@ -49,15 +47,8 @@ public class CloudCoin {
 
     // Binary variables
 
-    public byte[] binary; // The CloudCoin binary file
-    public byte coinMode; // 0 transfer mode, 1 internal use
-    public byte[] coinName; // Name of coin in bytes
-    public String coinNameText; // Name of coin in clear text
-    public byte[] anTypes; // 4 hexadecimal numbers representing AN types: 0 (unknown) 1 (random number)
-    // 2 (Hash of SN and pin/password) 3 (Hash of SN and email) 4 (Hash of SN and iris) 5 (Hash of SN and face)
-    // 6 (Authority-assigned number) 7 (Hash of SN and fingerprint) 8 (Hash of SN and second user's pin)
-    public byte[] pownBinary; // Last Pown results: 0 (unknown) 1 (pass) 2 (no response) E (error) F (fail)
-    public byte[] anBinary; // Authenticity numbers
+    public transient byte[] pownBinary; // Last Pown results: 0 (unknown) 1 (pass) 2 (no response) E (error) F (fail)
+    public transient byte[] anBinary; // Authenticity numbers
 
 
     // JPEG variables
@@ -81,14 +72,14 @@ public class CloudCoin {
      * @param binary the binary array for a CloudCoin.
      */
     public CloudCoin(byte[] binary) {
-        this.binary = binary;
-        coinMode = binary[3];
-        coinName = Arrays.copyOfRange(binary, 4, 12);
-        coinNameText = new String(coinName, StandardCharsets.UTF_8);
-        anTypes = Arrays.copyOfRange(binary, 13, 14);
+        //this.binary = binary;
+        //coinMode = binary[3];
+        //coinName = Arrays.copyOfRange(binary, 4, 12);
+        //coinNameText = new String(coinName, StandardCharsets.UTF_8);
+        //anTypes = Arrays.copyOfRange(binary, 13, 14);
         setNn(binary[15]);
         setSn((binary[18] & 0xff) | ((binary[17] & 0xff) << 8) | ((binary[16] & 0x0f) << 16));
-        pownBinary = Arrays.copyOfRange(binary, 19, 31);
+        //pownBinary = Arrays.copyOfRange(binary, 19, 31); // may be removed in the future.
         anBinary = Arrays.copyOfRange(binary, 32, 431);
 
         currentFilename = CoinUtils.getDenomination(this) + ".CloudCoin." + getNn() + "." + getSn() + ".";
@@ -107,7 +98,7 @@ public class CloudCoin {
         StringBuilder builder = new StringBuilder();
         builder.append("cloudcoin: (nn:").append(getNn()).append(", sn:").append(getSn());
         if (null != getEd()) builder.append(", ed:").append(getEd());
-        if (null != pownBinary) builder.append(", pown:").append(pownBinary);
+        if (null != pown) builder.append(", pown:").append(pown);
         if (null != aoid) builder.append(", aoid:").append(aoid.toString());
         if (null != anBinary) builder.append(", anBinary:").append(anBinary.toString());
 

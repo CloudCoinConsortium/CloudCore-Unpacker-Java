@@ -1,4 +1,4 @@
-package com.cloudcoin.bank.bank;
+package com.cloudcoin.unpacker;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,17 +13,26 @@ import java.util.List;
  */
 class FolderWatcher {
 
+
+    // Fields
+
     /** A WatchService to detect folder changes. */
     private WatchService watcher;
 
     /** The directory to be watched by the WatchService. */
     private String directory;
 
+
+    // Constructors
+
     /** Constructor for objects of class FolderWatcher. */
     public FolderWatcher(String directory) {
         this.directory = directory;
         Initialize(directory);
     }
+
+
+    // Methods
 
     /**
      * Initializes a new WatchService to detect new files at the specified directory.
@@ -61,13 +70,11 @@ class FolderWatcher {
                 System.out.println("Created: " + event.context().toString());
 
                 resetWatcher(watchKey);
-
                 return true;
             }
         }
 
         resetWatcher(watchKey);
-
         return false;
     }
 

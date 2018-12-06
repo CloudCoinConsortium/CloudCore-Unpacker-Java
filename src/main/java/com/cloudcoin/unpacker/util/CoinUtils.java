@@ -1,7 +1,7 @@
-package com.cloudcoin.bank.bank.util;
+package com.cloudcoin.unpacker.util;
 
-import com.cloudcoin.bank.bank.CloudCoin;
-import com.cloudcoin.bank.bank.core.Config;
+import com.cloudcoin.unpacker.CloudCoin;
+import com.cloudcoin.unpacker.core.Config;
 
 import java.security.SecureRandom;
 import java.util.UUID;
