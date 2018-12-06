@@ -270,7 +270,8 @@ class FileUtils {
 
         //cc.aoidOld = null;//wholeString.substring( 840, 895 );
         //cc.hp = 25;//Integer.parseInt(wholeString.substring( 896, 896 ), 16);
-        cc.setEd(wholeString.substring(898, 902));
+        cc.setPown(CoinUtils.pownHexToString(wholeString.substring(840, 872)));
+        cc.setEd(CoinUtils.expirationDateHexToString(wholeString.substring(900, 902)));
         cc.setNn(Integer.parseInt(wholeString.substring(902, 904), 16));
         cc.setSn(Integer.parseInt(wholeString.substring(904, 910), 16));
 
@@ -400,4 +401,5 @@ class FileUtils {
         }
         return hash;
     }
+
 }

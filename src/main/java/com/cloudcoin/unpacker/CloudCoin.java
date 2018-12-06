@@ -61,6 +61,16 @@ public class CloudCoin {
     /* Constructors */
 
 
+    /**
+     * Simple CloudCoin constructor for setting the filepath of the coin. This is used when deleting or renaming a file.
+     *
+     * @param folder   the folder containing the Stack file.
+     * @param filename the absolute filepath of the Stack file.
+     */
+    public CloudCoin(String folder, String filename) {
+        this.currentFilename = filename;
+    }
+
     /** CloudCoin Constructor for importing jpg/jpeg files. */
     public CloudCoin() {
 
@@ -117,6 +127,7 @@ public class CloudCoin {
     public void setSn(int sn) { this.sn = sn; }
     public void setAn(ArrayList<String> an) { this.an = an; }
     public void setEd(String ed) { this.ed = ed; }
+    public void setPown(String pown) { this.pown = pown; }
 
     public void setFullFilePath(String fullFilePath) {
         this.folder = fullFilePath.substring(0, 1 + fullFilePath.lastIndexOf(File.separatorChar));

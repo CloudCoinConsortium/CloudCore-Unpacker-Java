@@ -1,6 +1,10 @@
 package com.cloudcoin.unpacker;
 
+import com.cloudcoin.unpacker.util.CoinUtils;
+
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
@@ -57,8 +61,9 @@ class Unpacker {
                 extension = fileNames[i].substring(index + 1);
 
                 if (("stack".equalsIgnoreCase(extension) && importStack(fileNames[i]))
-                    || ("coin".equalsIgnoreCase(extension) && importBinary(fileNames[i]))
-                    || (("jpg".equalsIgnoreCase(extension) || "jpeg".equalsIgnoreCase(extension)) && importJPEG(fileNames[i])))
+                        /*|| ("coin".equalsIgnoreCase(extension) && importBinary(fileNames[i]))*/
+                        || ("csv".equalsIgnoreCase(extension) && importCsv(fileNames[i]))
+                        || (("jpg".equalsIgnoreCase(extension) || "jpeg".equalsIgnoreCase(extension)) && importJPEG(fileNames[i])))
                     fileUtils.moveToImportedFolder(fileNames[i]);
                 else
                     fileUtils.moveToTrashFolder(fileNames[i]);
@@ -113,5 +118,25 @@ class Unpacker {
             fileUtils.moveToImportedFolder(fileName);
         }
         return true;
+    }
+
+    public boolean importCsv(String filename) {
+        ArrayList<String> lines;
+        String fullFilePath = fileUtils.importFolder + filename;
+        try {
+            ArrayList<CloudCoin> csvCoins = new ArrayList<>();
+            lines = new ArrayList<>(Files.readAllLines(Paths.get(fullFilePath)));
+            for (String line : lines)
+                csvCoins.add(CoinUtils.cloudCoinFromCsv(line, fileUtils.importFolder, filename));
+            csvCoins.remove(null);
+            for (CloudCoin coin : csvCoins) {
+                fileUtils.writeCoinToIndividualStacks(coin, fileUtils.suspectFolder);
+                fileUtils.moveToImportedFolder(filename);
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
