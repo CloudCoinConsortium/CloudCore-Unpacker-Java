@@ -1,6 +1,8 @@
 package com.cloudcoin.unpacker;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Waits for new files in the import folder, then unpacks them to individual coins.
@@ -10,14 +12,18 @@ import java.io.File;
  */
 public class Main {
 
+    public static String RootPath = "C:\\Users\\Public\\Documents\\CloudCoin\\";
+
     public static void main(String[] args) {
         for (String arg : args) {
             System.out.println("arg: " + arg);
         }
+        if (args.length != 0 && Files.exists(Paths.get(args[0]))) {
+            System.out.println("New root path: " + args[0]);
+            RootPath = args[0];
+        }
 
-        FileUtils fileUtils = new FileUtils("C:" + File.separator + "CloudCoinServer" + File.separator +
-                "accounts" + File.separator + "DefaultUser" + File.separator,
-                "Import", "Imported", "Trash", "Suspect");
+        FileUtils fileUtils = new FileUtils(RootPath, "Import", "Imported", "Trash", "Suspect");
         FolderWatcher watcher = new FolderWatcher(fileUtils.importFolder);
         boolean stop = false;
 
