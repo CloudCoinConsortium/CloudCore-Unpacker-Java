@@ -24,30 +24,18 @@ public class Main {
         }
 
         FileUtils fileUtils = new FileUtils(RootPath, "Import", "Imported", "Trash", "Suspect");
-        FolderWatcher watcher = new FolderWatcher(fileUtils.importFolder);
-        boolean stop = false;
 
         System.out.println("found files: " + FileUtils.selectFileNamesInFolder(fileUtils.importFolder).length);
 
         if (0 != FileUtils.selectFileNamesInFolder(fileUtils.importFolder).length) {
             Unpacker myUnpacker = new Unpacker(fileUtils);
             myUnpacker.importAll();
+            exitIfSingleRun();
         }
 
+        FolderWatcher watcher = new FolderWatcher(fileUtils.importFolder);
         System.out.println("Watching folders at " + fileUtils.importFolder + "...");
-
-        while (!stop) {
-            // If a change is detected, unpack with Unpacker.
-            if (watcher.newFileDetected()) {
-                System.out.println("Unpacking file...");
-                Unpacker myUnpacker = new Unpacker(fileUtils);
-                myUnpacker.importAll();
-                System.out.println("Done unpacking.");
-                exitIfSingleRun();
-            }
-        }
-
-        while (!stop) {
+        while (true) {
             try {
                 Thread.sleep(1000);
 
