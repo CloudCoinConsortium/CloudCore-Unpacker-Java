@@ -17,9 +17,7 @@ public class Main {
     public static String RootPath = "C:\\Users\\Public\\Documents\\CloudCoin\\";
 
     public static void main(String[] args) {
-        for (String arg : args) {
-            System.out.println("arg: " + arg);
-        }
+        singleRun = isSingleRun(args);
         if (args.length != 0 && Files.exists(Paths.get(args[0]))) {
             System.out.println("New root path: " + args[0]);
             RootPath = args[0];
@@ -45,6 +43,7 @@ public class Main {
                 Unpacker myUnpacker = new Unpacker(fileUtils);
                 myUnpacker.importAll();
                 System.out.println("Done unpacking.");
+                exitIfSingleRun();
             }
         }
 
@@ -58,10 +57,23 @@ public class Main {
                     Unpacker myUnpacker = new Unpacker(fileUtils);
                     myUnpacker.importAll();
                     System.out.println("Done unpacking.");
+                    exitIfSingleRun();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static boolean singleRun = false;
+    public static boolean isSingleRun(String[] args) {
+        for (String arg : args)
+            if (arg.equals("singleRun"))
+                return true;
+        return false;
+    }
+    public static void exitIfSingleRun() {
+        if (singleRun)
+            System.exit(0);
     }
 }
