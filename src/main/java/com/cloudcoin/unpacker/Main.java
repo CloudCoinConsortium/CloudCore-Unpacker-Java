@@ -47,5 +47,21 @@ public class Main {
                 System.out.println("Done unpacking.");
             }
         }
+
+        while (!stop) {
+            try {
+                Thread.sleep(1000);
+
+                // If a change is detected, unpack with Unpacker.
+                if (watcher.newFileDetected()) {
+                    System.out.println("Unpacking file...");
+                    Unpacker myUnpacker = new Unpacker(fileUtils);
+                    myUnpacker.importAll();
+                    System.out.println("Done unpacking.");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
